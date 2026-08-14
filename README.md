@@ -36,7 +36,7 @@ Node 22+ ships an experimental global `localStorage`, and it shadows jsdom's ful
 ```
 app/
   routes/
-    _index.tsx (home.tsx)     # dashboard page; loader does an SSR bootstrap fetch
+    home.tsx                   # dashboard page (registered as the index route in routes.ts); loader does an SSR bootstrap fetch
     api.rates.ts               # GET = cheap cache read, POST = manual refresh (shares the T1 budget)
   services/                    # *.server.ts — excluded from the client bundle
     coinbase.server.ts         # thin Coinbase API client
