@@ -57,7 +57,7 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
 
     async function pollOnce() {
       try {
-        const res = await fetch("/api/rates", { signal: controller.signal });
+        const res = await fetch("/api/rates", { signal: controller.signal, cache: "no-store" });
         if (res.ok) applySnapshot((await res.json()) as RatesPayload);
       } catch {
         // Transient network hiccup on an internal poll — next tick retries;
@@ -83,7 +83,7 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
     isRefreshingRef.current = true;
     setRefreshState("refreshing");
     try {
-      const res = await fetch("/api/rates", { method: "POST" });
+      const res = await fetch("/api/rates", { method: "POST", cache: "no-store" });
       if (!res.ok) return;
       const payload = (await res.json()) as RatesPayload & { refreshOk: boolean; retryAfterMs: number | null };
       applySnapshot(payload);

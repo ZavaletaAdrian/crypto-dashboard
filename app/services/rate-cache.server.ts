@@ -36,16 +36,16 @@ export interface ManualRefreshResult {
  * refreshes pricing for the entire coin list, not two.
  */
 function toCoinRates(rawRates: Record<string, string>): CoinRateMap {
-  const usdPerUnit: Record<string, number> = {};
+  const unitsPerUsdByCode: Record<string, number> = {};
   for (const [code, value] of Object.entries(rawRates)) {
     const parsed = Number(value);
     if (Number.isFinite(parsed) && parsed > 0) {
-      usdPerUnit[code] = parsed;
+      unitsPerUsdByCode[code] = parsed;
     }
   }
-  const btcUnitsPerUsd = usdPerUnit.BTC;
+  const btcUnitsPerUsd = unitsPerUsdByCode.BTC;
   const result: CoinRateMap = {};
-  for (const [code, unitsPerUsd] of Object.entries(usdPerUnit)) {
+  for (const [code, unitsPerUsd] of Object.entries(unitsPerUsdByCode)) {
     result[code] = {
       usd: 1 / unitsPerUsd,
       btc: btcUnitsPerUsd ? btcUnitsPerUsd / unitsPerUsd : Number.NaN,
