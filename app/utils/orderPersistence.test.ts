@@ -20,6 +20,15 @@ describe("isValidOrderPayload", () => {
   it("rejects a payload missing updatedAt", () => {
     expect(isValidOrderPayload({ version: 1, order: ["BTC"] })).toBe(false);
   });
+
+  it("rejects a non-finite updatedAt (NaN/Infinity), which would break last-write-wins", () => {
+    expect(isValidOrderPayload({ version: 1, updatedAt: Number.NaN, order: ["BTC"] })).toBe(false);
+    expect(isValidOrderPayload({ version: 1, updatedAt: Number.POSITIVE_INFINITY, order: ["BTC"] })).toBe(false);
+  });
+
+  it("rejects an order containing duplicate codes", () => {
+    expect(isValidOrderPayload({ version: 1, updatedAt: 1, order: ["BTC", "ETH", "BTC"] })).toBe(false);
+  });
 });
 
 describe("parseOrderPayload", () => {

@@ -6,12 +6,19 @@ export const ORDER_PAYLOAD_VERSION = 1;
 export function isValidOrderPayload(value: unknown): value is OrderPayload {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
-  return (
-    candidate.version === ORDER_PAYLOAD_VERSION &&
-    typeof candidate.updatedAt === "number" &&
-    Array.isArray(candidate.order) &&
-    candidate.order.every((code) => typeof code === "string")
-  );
+  if (
+    candidate.version !== ORDER_PAYLOAD_VERSION ||
+    typeof candidate.updatedAt !== "number" ||
+    !Number.isFinite(candidate.updatedAt) ||
+    !Array.isArray(candidate.order) ||
+    !candidate.order.every((code) => typeof code === "string")
+  ) {
+    return false;
+  }
+  // Duplicate codes would render the same coin twice (and produce a
+  // duplicate React key) — NaN/Infinity timestamps would break the
+  // last-write-wins comparison used for cross-tab sync.
+  return new Set(candidate.order).size === candidate.order.length;
 }
 
 /** Parses and validates raw localStorage content. Never throws — invalid/corrupt input becomes null. */
