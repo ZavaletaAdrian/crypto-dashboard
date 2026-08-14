@@ -12,6 +12,7 @@ export function RefreshButton({ onRefresh, isRefreshing, retryAvailableAt }: Ref
 
   useEffect(() => {
     if (retryAvailableAt === null) return;
+    setNow(Date.now()); // avoid showing a stale countdown until the first 1s tick
     const id = setInterval(() => {
       const current = Date.now();
       setNow(current);

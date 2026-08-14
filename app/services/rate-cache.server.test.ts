@@ -73,7 +73,8 @@ describe("rate cache", () => {
 
     const p1 = cache.requestManualRefresh();
     const p2 = cache.requestManualRefresh();
-    resolveFetch?.();
+    expect(resolveFetch).toBeTypeOf("function"); // fail fast if setup didn't run rather than hang on Promise.all
+    resolveFetch!();
     const [r1, r2] = await Promise.all([p1, p2]);
 
     expect(fetchRates).toHaveBeenCalledTimes(1);
