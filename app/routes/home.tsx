@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Route } from "./+types/home";
 import { getRatesPayloadForRead } from "~/services/rates-payload.server";
 import { useRatesPolling } from "~/hooks/useRatesPolling";
+import { useOrderedCoins } from "~/hooks/useOrderedCoins";
 import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
@@ -23,8 +24,9 @@ export async function loader({}: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { coins, rates, ageMs, tier, lastError, refresh, refreshState, retryAvailableAt } =
     useRatesPolling(loaderData);
+  const { orderedCoins, reorderVisible } = useOrderedCoins(coins);
   const [filterQuery, setFilterQuery] = useState("");
-  const visibleCoins = useFilteredVisibleCoins(coins, filterQuery);
+  const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -63,7 +65,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {visibleCoins.length === 0 ? (
         <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
       ) : (
-        <CryptoGrid coins={visibleCoins} rates={rates} />
+        <CryptoGrid coins={visibleCoins} rates={rates} onReorder={reorderVisible} />
       )}
     </main>
   );
