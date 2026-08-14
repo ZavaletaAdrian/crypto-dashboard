@@ -61,7 +61,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </div>
 
       {visibleCoins.length === 0 ? (
-        <EmptyState message={`No coins match "${filterQuery}".`} />
+        <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
       ) : (
         <CryptoGrid coins={visibleCoins} rates={rates} />
       )}
