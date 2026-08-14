@@ -2,8 +2,6 @@ import { rateCache } from "./rate-cache.server";
 import { getCoinCatalog } from "./coin-catalog.server";
 import type { RatesPayload } from "~/types/rates";
 
-export type { RatesPayload } from "~/types/rates";
-
 async function buildPayload(): Promise<RatesPayload> {
   const snapshot = rateCache.getSnapshot();
   const coins = await getCoinCatalog();
