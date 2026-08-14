@@ -106,7 +106,7 @@ export function createRateCache(options: RateCacheOptions) {
   async function tick(): Promise<void> {
     const isIdle = now() - lastPolledAt > idleTimeoutMs;
     if (!isIdle) {
-      const age = fetchedAt ? now() - fetchedAt : Number.POSITIVE_INFINITY;
+      const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
       if (age >= backgroundIntervalMs && bucket.tryConsume(now())) {
         await doFetch();
       }
@@ -140,7 +140,7 @@ export function createRateCache(options: RateCacheOptions) {
   }
 
   function getSnapshot(): RatesSnapshot {
-    const ageMs = fetchedAt ? now() - fetchedAt : null;
+    const ageMs = fetchedAt !== null ? now() - fetchedAt : null;
     return {
       ratesByCode,
       fetchedAt,
@@ -152,7 +152,7 @@ export function createRateCache(options: RateCacheOptions) {
 
   /** Draws from the exact same bucket as the background loop — no separate manual quota. */
   async function requestManualRefresh(): Promise<ManualRefreshResult> {
-    const age = fetchedAt ? now() - fetchedAt : Number.POSITIVE_INFINITY;
+    const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
     if (age < manualGuardMs) return { ok: true };
     if (bucket.tryConsume(now())) {
       await doFetch();

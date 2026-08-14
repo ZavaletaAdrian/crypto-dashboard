@@ -94,6 +94,22 @@ describe("rate cache", () => {
     expect(fetchRates).toHaveBeenCalledTimes(2);
   });
 
+  it("reports a correct 'live' tier even when the injected clock's fetch timestamp is exactly 0", async () => {
+    // Regression test: `fetchedAt ? ... : null` treats a legitimate 0 timestamp as
+    // falsy, misreporting "never fetched". Guards against that truthy-check bug.
+    let now = 0;
+    const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
+    const cache = createRateCache({ fetchRates, now: () => now, autoStart: false });
+
+    await cache.ensureBootstrap();
+    now += 5;
+
+    const snapshot = cache.getSnapshot();
+    expect(snapshot.fetchedAt).toBe(0);
+    expect(snapshot.ageMs).toBe(5);
+    expect(snapshot.tier).toBe("live");
+  });
+
   it("pauses the proactive loop when idle so it doesn't spend budget with no viewers", async () => {
     let now = 0;
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
