@@ -14,8 +14,6 @@ const TIER_STYLES: Record<StalenessTier, string> = {
   never: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300",
 };
 
-const NEVER_TIER_STYLE_WITH_ERROR = "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300";
-
 function formatAge(ageMs: number): string {
   const seconds = Math.floor(ageMs / 1000);
   if (seconds < 60) return `${seconds}s ago`;
@@ -37,7 +35,7 @@ function label(tier: StalenessTier, ageMs: number | null, hasError: boolean): st
 }
 
 export function StalenessBadge({ tier, ageMs, hasError = false }: StalenessBadgeProps) {
-  const style = tier === "never" && hasError ? NEVER_TIER_STYLE_WITH_ERROR : TIER_STYLES[tier];
+  const style = tier === "never" && hasError ? TIER_STYLES.stale : TIER_STYLES[tier];
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style}`}>
       <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
