@@ -1,9 +1,13 @@
+import { useState } from "react";
 import type { Route } from "./+types/home";
 import { getRatesPayloadForRead } from "~/services/rates-payload.server";
 import { useRatesPolling } from "~/hooks/useRatesPolling";
+import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
 import { RefreshButton } from "~/components/RefreshButton";
+import { FilterInput } from "~/components/FilterInput";
+import { EmptyState } from "~/components/EmptyState";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,6 +23,8 @@ export async function loader({}: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { coins, rates, ageMs, tier, lastError, refresh, refreshState, retryAvailableAt } =
     useRatesPolling(loaderData);
+  const [filterQuery, setFilterQuery] = useState("");
+  const visibleCoins = useFilteredVisibleCoins(coins, filterQuery);
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -50,7 +56,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </p>
       )}
 
-      <CryptoGrid coins={coins} rates={rates} />
+      <div className="mb-4">
+        <FilterInput value={filterQuery} onChange={setFilterQuery} />
+      </div>
+
+      {visibleCoins.length === 0 ? (
+        <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
+      ) : (
+        <CryptoGrid coins={visibleCoins} rates={rates} />
+      )}
     </main>
   );
 }
