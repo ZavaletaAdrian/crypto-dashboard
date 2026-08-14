@@ -1,0 +1,65 @@
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { CryptoCard } from "./CryptoCard";
+import type { Coin, CoinRateMap } from "~/types/coin";
+
+interface CryptoGridProps {
+  /** Already the ordered + currently-visible (filtered) subset. */
+  coins: Coin[];
+  rates: CoinRateMap;
+  onReorder: (fromIndex: number, toIndex: number, visibleCodes: string[]) => void;
+}
+
+export function CryptoGrid({ coins, rates, onReorder }: CryptoGridProps) {
+  const visibleCodes = coins.map((coin) => coin.code);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromIndex = visibleCodes.indexOf(String(active.id));
+    const toIndex = visibleCodes.indexOf(String(over.id));
+    if (fromIndex === -1 || toIndex === -1) return;
+    onReorder(fromIndex, toIndex, visibleCodes);
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={visibleCodes} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {coins.map((coin) => (
+            <SortableCryptoCard key={coin.code} coin={coin} rate={rates[coin.code]} />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+interface SortableCryptoCardProps {
+  coin: Coin;
+  rate: CoinRateMap[string];
+}
+
+function SortableCryptoCard({ coin, rate }: SortableCryptoCardProps) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: coin.code,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} data-testid={`sortable-item-${coin.code}`}>
+      <CryptoCard coin={coin} rate={rate} dragHandleProps={{ ref: setActivatorNodeRef, ...attributes, ...listeners }} />
+    </div>
+  );
+}
