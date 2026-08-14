@@ -15,7 +15,12 @@ export interface UseOrderedCoinsResult {
  * (T5, via reorderWithHidden).
  */
 export function useOrderedCoins(catalog: Coin[]): UseOrderedCoinsResult {
-  const catalogCodes = useMemo(() => catalog.map((coin) => coin.code), [catalog]);
+  const catalogCodesRaw = catalog.map((coin) => coin.code);
+  const catalogKey = catalogCodesRaw.join(",");
+  // Stable reference as long as the content is unchanged, even though `catalog`
+  // (and therefore catalogCodesRaw) gets a new array identity on every poll —
+  // keeps effects below from re-running every ~2.5s for no reason.
+  const catalogCodes = useMemo(() => (catalogKey ? catalogKey.split(",") : []), [catalogKey]);
   const coinByCode = useMemo(() => new Map(catalog.map((coin) => [coin.code, coin])), [catalog]);
 
   // Matches what the server renders (no localStorage access during SSR), so
@@ -29,11 +34,17 @@ export function useOrderedCoins(catalog: Coin[]): UseOrderedCoinsResult {
       updatedAtRef.current = stored.updatedAt;
       setOrder((prev) => mergeOrder(stored.order, catalogCodes.length ? catalogCodes : prev));
     }
-    // Runs once after mount to hydrate from localStorage; catalogCodes is a
-    // fixed curated list in practice, so re-running on every reference
-    // change isn't needed here.
+    // Runs once after mount to read localStorage exactly one time; the
+    // separate effect below handles re-merging if the catalog itself changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Re-merge if the catalog's set of codes changes after mount (e.g. a coin
+  // added to or removed from the curated list) — without this, a coin added
+  // later would never make it into `order`/orderedCoins.
+  useEffect(() => {
+    setOrder((prev) => mergeOrder(prev, catalogCodes));
+  }, [catalogCodes]);
 
   // Cross-tab sync: the `storage` event fires in *other* tabs when this key
   // changes. Last-write-wins by updatedAt — a synchronous write on every
@@ -54,7 +65,12 @@ export function useOrderedCoins(catalog: Coin[]): UseOrderedCoinsResult {
   const persist = useCallback((nextOrder: string[]) => {
     const updatedAt = Date.now();
     updatedAtRef.current = updatedAt;
-    window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(buildOrderPayload(nextOrder, updatedAt)));
+    try {
+      window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(buildOrderPayload(nextOrder, updatedAt)));
+    } catch {
+      // Storage disabled or quota exceeded — reordering still works for the
+      // rest of this session via React state, it just won't survive a reload.
+    }
   }, []);
 
   const reorderVisible = useCallback(

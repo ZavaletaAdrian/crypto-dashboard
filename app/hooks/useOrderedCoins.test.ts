@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import type { Coin } from "~/types/coin";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useOrderedCoins } from "./useOrderedCoins";
 import { ORDER_STORAGE_KEY, buildOrderPayload } from "~/utils/orderPersistence";
@@ -63,6 +64,24 @@ describe("useOrderedCoins", () => {
     });
 
     expect(result.current.orderedCoins.map((c) => c.code)).toEqual(["SOL", "ETH", "BTC"]);
+  });
+
+  it("merges in a coin added to the catalog after mount, without losing the existing order", async () => {
+    const { result, rerender } = renderHook((props: { catalog: Coin[] }) => useOrderedCoins(props.catalog), {
+      initialProps: { catalog: CATALOG },
+    });
+    await waitFor(() => expect(result.current.orderedCoins).toHaveLength(3));
+
+    act(() => {
+      result.current.reorderVisible(0, 2, ["BTC", "ETH", "SOL"]); // -> ETH, SOL, BTC
+    });
+
+    const expandedCatalog = [...CATALOG, { code: "DOGE", name: "Dogecoin" }];
+    rerender({ catalog: expandedCatalog });
+
+    await waitFor(() => {
+      expect(result.current.orderedCoins.map((c) => c.code)).toEqual(["ETH", "SOL", "BTC", "DOGE"]);
+    });
   });
 
   it("ignores a stale order arriving from another tab", async () => {
