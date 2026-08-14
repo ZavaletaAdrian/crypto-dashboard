@@ -1,6 +1,6 @@
 import { computeStalenessTier } from "~/utils/staleness";
 import { TokenBucket } from "~/utils/tokenBucket";
-import type { CoinRate, StalenessTier } from "~/types/coin";
+import type { CoinRateMap, StalenessTier } from "~/types/coin";
 import { fetchExchangeRates, type ExchangeRatesResponse } from "./coinbase.server";
 
 export interface RateCacheOptions {
@@ -16,7 +16,7 @@ export interface RateCacheOptions {
 }
 
 export interface RatesSnapshot {
-  ratesByCode: Record<string, CoinRate>;
+  ratesByCode: CoinRateMap;
   fetchedAt: number | null;
   ageMs: number | null;
   tier: StalenessTier;
@@ -35,17 +35,17 @@ export interface ManualRefreshResult {
  * This is the fact the whole T1 budget design depends on — one Coinbase call
  * refreshes pricing for the entire coin list, not two.
  */
-function toCoinRates(rawRates: Record<string, string>): Record<string, CoinRate> {
-  const usdPerUnit: Record<string, number> = {};
+function toCoinRates(rawRates: Record<string, string>): CoinRateMap {
+  const unitsPerUsdByCode: Record<string, number> = {};
   for (const [code, value] of Object.entries(rawRates)) {
     const parsed = Number(value);
     if (Number.isFinite(parsed) && parsed > 0) {
-      usdPerUnit[code] = parsed;
+      unitsPerUsdByCode[code] = parsed;
     }
   }
-  const btcUnitsPerUsd = usdPerUnit.BTC;
-  const result: Record<string, CoinRate> = {};
-  for (const [code, unitsPerUsd] of Object.entries(usdPerUnit)) {
+  const btcUnitsPerUsd = unitsPerUsdByCode.BTC;
+  const result: CoinRateMap = {};
+  for (const [code, unitsPerUsd] of Object.entries(unitsPerUsdByCode)) {
     result[code] = {
       usd: 1 / unitsPerUsd,
       btc: btcUnitsPerUsd ? btcUnitsPerUsd / unitsPerUsd : Number.NaN,
@@ -64,15 +64,18 @@ export function createRateCache(options: RateCacheOptions) {
 
   const bucket = new TokenBucket({ capacity, refillIntervalMs, now });
 
-  let ratesByCode: Record<string, CoinRate> = {};
+  let ratesByCode: CoinRateMap = {};
   let fetchedAt: number | null = null;
   let consecutiveFailures = 0;
   let lastError: string | null = null;
   let lastPolledAt = now();
-  let inflight: Promise<void> | null = null;
+  let inflight: Promise<boolean> | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
 
-  async function doFetch(): Promise<void> {
+  /** Resolves to whether the fetch actually succeeded, so callers waiting on
+   *  an in-flight fetch (rather than starting their own) can tell success
+   *  from failure instead of assuming success just because a call happened. */
+  async function doFetch(): Promise<boolean> {
     if (inflight) return inflight;
     inflight = (async () => {
       try {
@@ -81,9 +84,11 @@ export function createRateCache(options: RateCacheOptions) {
         fetchedAt = now();
         consecutiveFailures = 0;
         lastError = null;
+        return true;
       } catch (err) {
         consecutiveFailures += 1;
         lastError = err instanceof Error ? err.message : "Unknown error";
+        return false;
       } finally {
         inflight = null;
       }
@@ -105,7 +110,7 @@ export function createRateCache(options: RateCacheOptions) {
   /** One iteration of the proactive background refresh loop. Exposed as `_tick` for tests. */
   async function tick(): Promise<void> {
     const isIdle = now() - lastPolledAt > idleTimeoutMs;
-    if (!isIdle) {
+    if (!isIdle && !inflight) {
       const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
       if (age >= backgroundIntervalMs && bucket.tryConsume(now())) {
         await doFetch();
@@ -150,13 +155,22 @@ export function createRateCache(options: RateCacheOptions) {
     };
   }
 
-  /** Draws from the exact same bucket as the background loop — no separate manual quota. */
+  /**
+   * Draws from the exact same bucket as the background loop — no separate
+   * manual quota. If a fetch is already in flight (e.g. the background loop
+   * just started one), piggyback on it instead of consuming a second token
+   * for a request that wouldn't trigger any new Coinbase call anyway.
+   */
   async function requestManualRefresh(): Promise<ManualRefreshResult> {
     const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
     if (age < manualGuardMs) return { ok: true };
+    if (inflight) {
+      const succeeded = await inflight;
+      return { ok: succeeded };
+    }
     if (bucket.tryConsume(now())) {
-      await doFetch();
-      return { ok: true };
+      const succeeded = await doFetch();
+      return { ok: succeeded };
     }
     return { ok: false, retryAfterMs: bucket.msUntilNextToken(now()) };
   }
