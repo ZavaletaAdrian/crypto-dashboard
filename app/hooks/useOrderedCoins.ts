@@ -29,7 +29,13 @@ export function useOrderedCoins(catalog: Coin[]): UseOrderedCoinsResult {
   const updatedAtRef = useRef(0);
 
   useEffect(() => {
-    const stored = parseOrderPayload(window.localStorage.getItem(ORDER_STORAGE_KEY));
+    let raw: string | null = null;
+    try {
+      raw = window.localStorage.getItem(ORDER_STORAGE_KEY);
+    } catch {
+      // Storage disabled (e.g. some private-browsing modes) — fall back to catalog order below.
+    }
+    const stored = parseOrderPayload(raw);
     if (stored) {
       updatedAtRef.current = stored.updatedAt;
       setOrder((prev) => mergeOrder(stored.order, catalogCodes.length ? catalogCodes : prev));
