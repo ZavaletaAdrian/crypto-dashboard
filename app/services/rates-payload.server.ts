@@ -1,16 +1,8 @@
 import { rateCache } from "./rate-cache.server";
 import { getCoinCatalog } from "./coin-catalog.server";
-import type { Coin, CoinRate, StalenessTier } from "~/types/coin";
+import type { RatesPayload } from "~/types/rates";
 
-export interface RatesPayload {
-  coins: Coin[];
-  rates: Record<string, CoinRate>;
-  fetchedAt: number | null;
-  ageMs: number | null;
-  tier: StalenessTier;
-  lastError: string | null;
-  budget: { tokensAvailable: number; capacity: number };
-}
+export type { RatesPayload } from "~/types/rates";
 
 async function buildPayload(): Promise<RatesPayload> {
   const snapshot = rateCache.getSnapshot();

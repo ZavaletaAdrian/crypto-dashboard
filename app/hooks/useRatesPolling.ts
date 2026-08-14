@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { computeStalenessTier } from "~/utils/staleness";
-import type { RatesPayload } from "~/services/rates-payload.server";
+import type { RatesPayload } from "~/types/rates";
 
 const POLL_INTERVAL_MS = 2500;
 
@@ -37,18 +37,28 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
     syncedAtRef.current = Date.now();
   }, []);
 
+  // Resync if the loader hands us fresh initial data (e.g. a full revalidation).
+  useEffect(() => {
+    applySnapshot(initial);
+  }, [initial, applySnapshot]);
+
   useEffect(() => {
     const id = setInterval(() => forceTick((t) => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
 
+  // Guards against a slower response landing after a newer one and
+  // overwriting fresher data with stale data.
+  const latestRequestIdRef = useRef(0);
+
   useEffect(() => {
     const controller = new AbortController();
     const id = setInterval(() => {
+      const requestId = ++latestRequestIdRef.current;
       fetch("/api/rates", { signal: controller.signal })
         .then((res) => (res.ok ? (res.json() as Promise<RatesPayload>) : null))
         .then((payload) => {
-          if (payload) applySnapshot(payload);
+          if (payload && requestId === latestRequestIdRef.current) applySnapshot(payload);
         })
         .catch(() => {
           // Transient network hiccup on an internal poll — next tick retries;
@@ -65,9 +75,13 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
     setRefreshState("refreshing");
     try {
       const res = await fetch("/api/rates", { method: "POST" });
+      if (!res.ok) return;
       const payload = (await res.json()) as RatesPayload & { refreshOk: boolean; retryAfterMs: number | null };
       applySnapshot(payload);
       setRetryAvailableAt(payload.refreshOk ? null : Date.now() + (payload.retryAfterMs ?? 0));
+    } catch {
+      // Transient network hiccup on a manual refresh — leave prior data in
+      // place and let the next click or the background poll recover.
     } finally {
       setRefreshState("idle");
     }

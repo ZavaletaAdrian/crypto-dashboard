@@ -61,6 +61,27 @@ describe("rate cache", () => {
     expect(fetchRates).toHaveBeenCalledTimes(3);
   });
 
+  it("does not consume a second token when a manual refresh overlaps an already in-flight fetch", async () => {
+    let resolveFetch: (() => void) | undefined;
+    const fetchRates = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFetch = resolve;
+        }).then(() => ({ currency: "USD", rates: { USD: "1", BTC: "0.00002" } })),
+    );
+    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0, autoStart: false });
+
+    const p1 = cache.requestManualRefresh();
+    const p2 = cache.requestManualRefresh();
+    resolveFetch?.();
+    const [r1, r2] = await Promise.all([p1, p2]);
+
+    expect(fetchRates).toHaveBeenCalledTimes(1);
+    expect(r1.ok).toBe(true);
+    expect(r2.ok).toBe(true);
+    expect(cache.getDebugBudget().tokensAvailable).toBe(4);
+  });
+
   it("stays in the 'never' tier after a failed fetch rather than reporting stale numbers", async () => {
     const fetchRates = vi.fn(async () => {
       throw new Error("network down");

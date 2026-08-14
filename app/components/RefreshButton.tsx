@@ -12,7 +12,11 @@ export function RefreshButton({ onRefresh, isRefreshing, retryAvailableAt }: Ref
 
   useEffect(() => {
     if (retryAvailableAt === null) return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current >= retryAvailableAt) clearInterval(id);
+    }, 1000);
     return () => clearInterval(id);
   }, [retryAvailableAt]);
 

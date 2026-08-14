@@ -105,7 +105,7 @@ export function createRateCache(options: RateCacheOptions) {
   /** One iteration of the proactive background refresh loop. Exposed as `_tick` for tests. */
   async function tick(): Promise<void> {
     const isIdle = now() - lastPolledAt > idleTimeoutMs;
-    if (!isIdle) {
+    if (!isIdle && !inflight) {
       const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
       if (age >= backgroundIntervalMs && bucket.tryConsume(now())) {
         await doFetch();
@@ -150,10 +150,19 @@ export function createRateCache(options: RateCacheOptions) {
     };
   }
 
-  /** Draws from the exact same bucket as the background loop — no separate manual quota. */
+  /**
+   * Draws from the exact same bucket as the background loop — no separate
+   * manual quota. If a fetch is already in flight (e.g. the background loop
+   * just started one), piggyback on it instead of consuming a second token
+   * for a request that wouldn't trigger any new Coinbase call anyway.
+   */
   async function requestManualRefresh(): Promise<ManualRefreshResult> {
     const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
     if (age < manualGuardMs) return { ok: true };
+    if (inflight) {
+      await inflight;
+      return { ok: true };
+    }
     if (bucket.tryConsume(now())) {
       await doFetch();
       return { ok: true };
