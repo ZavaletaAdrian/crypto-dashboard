@@ -81,13 +81,18 @@ export function useOrderedCoins(catalog: Coin[]): UseOrderedCoinsResult {
 
   const reorderVisible = useCallback(
     (fromIndex: number, toIndex: number, visibleCodes: string[]) => {
-      const next = reorderWithHidden(order, visibleCodes, fromIndex, toIndex);
-      setOrder(next);
-      // Synchronous, same-tick write: a reload immediately after this drop
-      // can't race ahead of persistence.
-      persist(next);
+      // Uses the setState updater form (not the closed-over `order`) so a
+      // second reorder invoked before React re-renders still computes from
+      // the true latest order rather than a stale one.
+      setOrder((prevOrder) => {
+        const next = reorderWithHidden(prevOrder, visibleCodes, fromIndex, toIndex);
+        // Synchronous, same-tick write: a reload immediately after this drop
+        // can't race ahead of persistence.
+        persist(next);
+        return next;
+      });
     },
-    [order, persist],
+    [persist],
   );
 
   const orderedCoins = useMemo(
