@@ -47,31 +47,40 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
     return () => clearInterval(id);
   }, []);
 
-  // Guards against a slower response landing after a newer one and
-  // overwriting fresher data with stale data.
-  const latestRequestIdRef = useRef(0);
-
+  // Sequential polling: the next poll is only scheduled after the previous
+  // one settles, so there's never more than one /api/rates GET in flight —
+  // no overlap to reason about, and therefore no possible out-of-order
+  // response to guard against.
   useEffect(() => {
     const controller = new AbortController();
-    const id = setInterval(() => {
-      const requestId = ++latestRequestIdRef.current;
-      fetch("/api/rates", { signal: controller.signal })
-        .then((res) => (res.ok ? (res.json() as Promise<RatesPayload>) : null))
-        .then((payload) => {
-          if (payload && requestId === latestRequestIdRef.current) applySnapshot(payload);
-        })
-        .catch(() => {
-          // Transient network hiccup on an internal poll — next tick retries;
-          // the staleness tier already communicates this to the user.
-        });
-    }, POLL_INTERVAL_MS);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    async function pollOnce() {
+      try {
+        const res = await fetch("/api/rates", { signal: controller.signal });
+        if (res.ok) applySnapshot((await res.json()) as RatesPayload);
+      } catch {
+        // Transient network hiccup on an internal poll — next tick retries;
+        // the staleness tier already communicates this to the user.
+      } finally {
+        if (!controller.signal.aborted) {
+          timer = setTimeout(() => void pollOnce(), POLL_INTERVAL_MS);
+        }
+      }
+    }
+
+    timer = setTimeout(() => void pollOnce(), POLL_INTERVAL_MS);
     return () => {
       controller.abort();
-      clearInterval(id);
+      if (timer) clearTimeout(timer);
     };
   }, [applySnapshot]);
 
+  const isRefreshingRef = useRef(false);
+
   const refresh = useCallback(async () => {
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
     setRefreshState("refreshing");
     try {
       const res = await fetch("/api/rates", { method: "POST" });
@@ -83,6 +92,7 @@ export function useRatesPolling(initial: RatesPayload): UseRatesPollingResult {
       // Transient network hiccup on a manual refresh — leave prior data in
       // place and let the next click or the background poll recover.
     } finally {
+      isRefreshingRef.current = false;
       setRefreshState("idle");
     }
   }, [applySnapshot]);
