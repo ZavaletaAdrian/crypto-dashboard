@@ -1,9 +1,9 @@
 import { CryptoCard } from "./CryptoCard";
-import type { Coin, CoinRate } from "~/types/coin";
+import type { Coin, CoinRateMap } from "~/types/coin";
 
 interface CryptoGridProps {
   coins: Coin[];
-  rates: Record<string, CoinRate>;
+  rates: CoinRateMap;
 }
 
 export function CryptoGrid({ coins, rates }: CryptoGridProps) {

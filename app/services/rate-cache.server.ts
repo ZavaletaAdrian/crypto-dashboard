@@ -1,6 +1,6 @@
 import { computeStalenessTier } from "~/utils/staleness";
 import { TokenBucket } from "~/utils/tokenBucket";
-import type { CoinRate, StalenessTier } from "~/types/coin";
+import type { CoinRateMap, StalenessTier } from "~/types/coin";
 import { fetchExchangeRates, type ExchangeRatesResponse } from "./coinbase.server";
 
 export interface RateCacheOptions {
@@ -16,7 +16,7 @@ export interface RateCacheOptions {
 }
 
 export interface RatesSnapshot {
-  ratesByCode: Record<string, CoinRate>;
+  ratesByCode: CoinRateMap;
   fetchedAt: number | null;
   ageMs: number | null;
   tier: StalenessTier;
@@ -35,7 +35,7 @@ export interface ManualRefreshResult {
  * This is the fact the whole T1 budget design depends on — one Coinbase call
  * refreshes pricing for the entire coin list, not two.
  */
-function toCoinRates(rawRates: Record<string, string>): Record<string, CoinRate> {
+function toCoinRates(rawRates: Record<string, string>): CoinRateMap {
   const usdPerUnit: Record<string, number> = {};
   for (const [code, value] of Object.entries(rawRates)) {
     const parsed = Number(value);
@@ -44,7 +44,7 @@ function toCoinRates(rawRates: Record<string, string>): Record<string, CoinRate>
     }
   }
   const btcUnitsPerUsd = usdPerUnit.BTC;
-  const result: Record<string, CoinRate> = {};
+  const result: CoinRateMap = {};
   for (const [code, unitsPerUsd] of Object.entries(usdPerUnit)) {
     result[code] = {
       usd: 1 / unitsPerUsd,
@@ -64,7 +64,7 @@ export function createRateCache(options: RateCacheOptions) {
 
   const bucket = new TokenBucket({ capacity, refillIntervalMs, now });
 
-  let ratesByCode: Record<string, CoinRate> = {};
+  let ratesByCode: CoinRateMap = {};
   let fetchedAt: number | null = null;
   let consecutiveFailures = 0;
   let lastError: string | null = null;

@@ -1,4 +1,4 @@
-import type { Coin, CoinRate, StalenessTier } from "./coin";
+import type { Coin, CoinRateMap, StalenessTier } from "./coin";
 
 /**
  * Wire shape shared between the server (rates-payload.server.ts) and the
@@ -7,7 +7,7 @@ import type { Coin, CoinRate, StalenessTier } from "./coin";
  */
 export interface RatesPayload {
   coins: Coin[];
-  rates: Record<string, CoinRate>;
+  rates: CoinRateMap;
   fetchedAt: number | null;
   ageMs: number | null;
   tier: StalenessTier;

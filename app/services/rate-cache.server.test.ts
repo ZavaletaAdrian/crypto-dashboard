@@ -15,9 +15,11 @@ describe("rate cache", () => {
     expect(fetchRates).toHaveBeenCalledTimes(1);
     const snapshot = cache.getSnapshot();
     expect(snapshot.tier).toBe("live");
-    expect(snapshot.ratesByCode.BTC.usd).toBeCloseTo(1 / 0.00002);
-    expect(snapshot.ratesByCode.BTC.btc).toBeCloseTo(1);
-    expect(snapshot.ratesByCode.ETH.btc).toBeCloseTo(0.00002 / 0.0006);
+    expect(snapshot.ratesByCode.BTC).toBeDefined();
+    expect(snapshot.ratesByCode.ETH).toBeDefined();
+    expect(snapshot.ratesByCode.BTC?.usd).toBeCloseTo(1 / 0.00002);
+    expect(snapshot.ratesByCode.BTC?.btc).toBeCloseTo(1);
+    expect(snapshot.ratesByCode.ETH?.btc).toBeCloseTo(0.00002 / 0.0006);
   });
 
   it("does not re-fetch on a second bootstrap once the cache is warm", async () => {
