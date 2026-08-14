@@ -85,6 +85,27 @@ describe("rate cache", () => {
     expect(cache.getDebugBudget().tokensAvailable).toBe(4);
   });
 
+  it("reports ok: false when a piggybacked in-flight fetch ultimately fails, rather than assuming success", async () => {
+    let rejectFetch: ((err: Error) => void) | undefined;
+    const fetchRates = vi.fn(
+      () =>
+        new Promise<{ currency: string; rates: Record<string, string> }>((_resolve, reject) => {
+          rejectFetch = reject;
+        }),
+    );
+    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0, autoStart: false });
+
+    const p1 = cache.requestManualRefresh();
+    const p2 = cache.requestManualRefresh();
+    expect(rejectFetch).toBeTypeOf("function");
+    rejectFetch!(new Error("network down"));
+    const [r1, r2] = await Promise.all([p1, p2]);
+
+    expect(fetchRates).toHaveBeenCalledTimes(1);
+    expect(r1.ok).toBe(false);
+    expect(r2.ok).toBe(false);
+  });
+
   it("stays in the 'never' tier after a failed fetch rather than reporting stale numbers", async () => {
     const fetchRates = vi.fn(async () => {
       throw new Error("network down");

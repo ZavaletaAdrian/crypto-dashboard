@@ -69,10 +69,13 @@ export function createRateCache(options: RateCacheOptions) {
   let consecutiveFailures = 0;
   let lastError: string | null = null;
   let lastPolledAt = now();
-  let inflight: Promise<void> | null = null;
+  let inflight: Promise<boolean> | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
 
-  async function doFetch(): Promise<void> {
+  /** Resolves to whether the fetch actually succeeded, so callers waiting on
+   *  an in-flight fetch (rather than starting their own) can tell success
+   *  from failure instead of assuming success just because a call happened. */
+  async function doFetch(): Promise<boolean> {
     if (inflight) return inflight;
     inflight = (async () => {
       try {
@@ -81,9 +84,11 @@ export function createRateCache(options: RateCacheOptions) {
         fetchedAt = now();
         consecutiveFailures = 0;
         lastError = null;
+        return true;
       } catch (err) {
         consecutiveFailures += 1;
         lastError = err instanceof Error ? err.message : "Unknown error";
+        return false;
       } finally {
         inflight = null;
       }
@@ -160,12 +165,12 @@ export function createRateCache(options: RateCacheOptions) {
     const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
     if (age < manualGuardMs) return { ok: true };
     if (inflight) {
-      await inflight;
-      return { ok: true };
+      const succeeded = await inflight;
+      return { ok: succeeded };
     }
     if (bucket.tryConsume(now())) {
-      await doFetch();
-      return { ok: true };
+      const succeeded = await doFetch();
+      return { ok: succeeded };
     }
     return { ok: false, retryAfterMs: bucket.msUntilNextToken(now()) };
   }
