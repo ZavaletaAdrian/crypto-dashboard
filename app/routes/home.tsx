@@ -33,7 +33,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Crypto Dashboard</h1>
         <div className="flex items-center gap-3">
-          <StalenessBadge tier={tier} ageMs={ageMs} />
+          <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
           <RefreshButton
             onRefresh={refresh}
             isRefreshing={refreshState === "refreshing"}
