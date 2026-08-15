@@ -4,6 +4,7 @@ import { getRatesPayloadForRead } from "~/services/rates-payload.server";
 import { useRatesPolling } from "~/hooks/useRatesPolling";
 import { useOrderedCoins } from "~/hooks/useOrderedCoins";
 import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
+import { usePriceHistory } from "~/hooks/usePriceHistory";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
 import { RefreshButton } from "~/components/RefreshButton";
@@ -25,48 +26,61 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { coins, rates, ageMs, tier, lastError, refresh, refreshState, retryAvailableAt } =
     useRatesPolling(loaderData);
   const { orderedCoins, reorderVisible } = useOrderedCoins(coins);
+  const priceHistoryByCode = usePriceHistory(rates);
   const [filterQuery, setFilterQuery] = useState("");
   const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Crypto Dashboard</h1>
-        <div className="flex items-center gap-3">
-          <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
-          <RefreshButton
-            onRefresh={refresh}
-            isRefreshing={refreshState === "refreshing"}
-            retryAvailableAt={retryAvailableAt}
-          />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/80">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Crypto Dashboard</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Live exchange rates via Coinbase</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
+            <RefreshButton
+              onRefresh={refresh}
+              isRefreshing={refreshState === "refreshing"}
+              retryAvailableAt={retryAvailableAt}
+            />
+          </div>
         </div>
       </header>
 
-      {tier === "never" && !lastError && (
-        <p className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-          Loading first rates…
-        </p>
-      )}
-      {tier === "never" && lastError && (
-        <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
-          Live rates are temporarily unavailable — showing the coin list only. Reconnecting automatically.
-        </p>
-      )}
-      {tier === "stale" && (
-        <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
-          Live rates are temporarily unavailable — showing last known data. Reconnecting automatically.
-        </p>
-      )}
+      <main className="mx-auto max-w-6xl p-6">
+        {tier === "never" && !lastError && (
+          <p className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+            Loading first rates…
+          </p>
+        )}
+        {tier === "never" && lastError && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
+            Live rates are temporarily unavailable — showing the coin list only. Reconnecting automatically.
+          </p>
+        )}
+        {tier === "stale" && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
+            Live rates are temporarily unavailable — showing last known data. Reconnecting automatically.
+          </p>
+        )}
 
-      <div className="mb-4">
-        <FilterInput value={filterQuery} onChange={setFilterQuery} />
-      </div>
+        <div className="mb-5">
+          <FilterInput value={filterQuery} onChange={setFilterQuery} />
+        </div>
 
-      {visibleCoins.length === 0 ? (
-        <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
-      ) : (
-        <CryptoGrid coins={visibleCoins} rates={rates} onReorder={reorderVisible} />
-      )}
-    </main>
+        {visibleCoins.length === 0 ? (
+          <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
+        ) : (
+          <CryptoGrid
+            coins={visibleCoins}
+            rates={rates}
+            priceHistoryByCode={priceHistoryByCode}
+            onReorder={reorderVisible}
+          />
+        )}
+      </main>
+    </div>
   );
 }
