@@ -5,14 +5,18 @@ colors:
   ink-primary: "#111827"
   ink-control: "#374151"
   ink-secondary: "#6b7280"
+  ink-icon: "#4b5563"
   ink-tertiary: "#9ca3af"
   surface: "#ffffff"
   surface-recessed: "#f9fafb"
   border-hairline: "#e5e7eb"
   border-control: "#d1d5db"
-  market-green: "#0ca30c"
-  market-red: "#d03b3b"
-  neutral-gray: "#898781"
+  market-green-light: "#15803d"
+  market-green-dark: "#0ca30c"
+  market-red-light: "#d03b3b"
+  market-red-dark: "#ef4444"
+  neutral-gray-light: "#676561"
+  neutral-gray-dark: "#898781"
   badge-live-bg: "#dcfce7"
   badge-live-text: "#166534"
   badge-delayed-bg: "#fef3c7"
@@ -63,9 +67,14 @@ components:
     textColor: "{colors.ink-control}"
   icon-button:
     backgroundColor: "transparent"
-    textColor: "{colors.ink-secondary}"
+    textColor: "{colors.ink-icon}"
     rounded: "{rounded.md}"
     padding: "8px"
+  drag-handle:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-tertiary}"
+    rounded: "{rounded.sm}"
+    padding: "10px"
   card:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink-primary}"
@@ -124,15 +133,17 @@ Density stays comfortable rather than tight: cards get real breathing room (16px
 Almost the entire palette is a neutral gray ramp; the only hues that exist are three fixed "signal" colors and a matching set of pastel/dark badge pairs used exclusively for the four data-freshness states. There is no primary or secondary brand color to speak of — this system deliberately has no accent.
 
 ### Primary (functional signal, not brand)
-- **Market Green** (`#0ca30c`): the sole "positive" hue in the system. Used only for an upward price-trend sparkline dot and its delta-chip icon/text — never for anything decorative or brand-related.
-- **Market Red** (`#d03b3b`): the sole "negative" hue. Used only for a downward price-trend sparkline dot and its delta-chip icon/text.
-- **Neutral Gray** (`#898781`): the "flat/no change" trend signal — a distinct warm-gray, deliberately not reused from the UI's own neutral ramp, so a flat trend still reads as an intentional state rather than "uncolored."
+Each signal color is tuned independently per theme — not a single hex serving both — because the same value can't clear 4.5:1 against a white card *and* a near-black one. Resolved via CSS custom properties (`--status-good`/`--status-critical`/`--status-muted` in `app/app.css`, consumed through `STATUS_COLOR` in `app/data/statusPalette.ts`), never a fixed value baked into a component.
+- **Market Green** — light `#15803d` / dark `#0ca30c`: the sole "positive" hue in the system. Used only for an upward price-trend sparkline dot and its delta-chip icon/text — never for anything decorative or brand-related.
+- **Market Red** — light `#d03b3b` / dark `#ef4444`: the sole "negative" hue. Used only for a downward price-trend sparkline dot and its delta-chip icon/text.
+- **Neutral Gray** — light `#676561` / dark `#898781`: the "flat/no change" trend signal — a distinct warm-gray, deliberately not reused from the UI's own neutral ramp, so a flat trend still reads as an intentional state rather than "uncolored."
 
 ### Neutral
 - **Ink Primary** (`#111827`): headings, the page title, and every card's headline USD price — the darkest, highest-emphasis text in the system.
 - **Ink Control** (`#374151`): button and control label text (Refresh, etc.) — one step lighter than heading text, so interactive labels read as slightly quieter than data.
-- **Ink Secondary** (`#6b7280`): meta and secondary text — the page subtitle, a coin's symbol, the BTC sub-price line, default icon tint.
-- **Ink Tertiary** (`#9ca3af`): placeholder text and the most recessive icon states (filter-input placeholder, unfocused search icon).
+- **Ink Secondary** (`#6b7280`): meta and secondary text — the page subtitle, a coin's symbol, the BTC sub-price line.
+- **Ink Icon** (`#4b5563`): the theme toggle's icon color — one step darker than Ink Secondary. Its own token rather than reusing Ink Secondary, since the two have drifted to genuinely different values in the shipped code.
+- **Ink Tertiary** (`#9ca3af`): placeholder text and the most recessive icon states (filter-input placeholder, unfocused search icon, the drag handle's resting color).
 - **Surface** (`#ffffff`): card backgrounds and the base page background.
 - **Surface Recessed** (`#f9fafb`): the page backdrop directly behind cards, and the hover fill for ghost buttons — one shade off white, just enough to separate a card from the page without a shadow doing the work.
 - **Border Hairline** (`#e5e7eb`): card borders — the thinnest, quietest border weight.
@@ -145,7 +156,7 @@ Almost the entire palette is a neutral gray ramp; the only hues that exist are t
 - **Never (loading)** — bg `#f3f4f6` / text `#4b5563`: no successful fetch yet, no error either — visually distinct from Stale so a first-time load never looks like a failure.
 
 ### Dark Mode
-Dark mode is a systematic ramp swap, not a separate palette: the page background becomes `#030712` (gray-950), card surfaces become `#111827` (gray-900, i.e. light mode's Ink Primary — the ramp inverts around its own midpoint), hairline borders become `#1f2937` (gray-800), and text roles shift roughly 7-8 steps toward the light end of the same gray scale (e.g. Ink Primary's dark-mode text sits around `#f3f4f6`). The three signal colors and the four badge pairs keep their light-mode hex value for the "text" role and move only their background to a dark, low-opacity tint of the same hue (e.g. Live's dark badge is `rgba(20,83,45,0.4)` background — green-900 at 40% — with `#86efac` (green-300) text) — the badges never change which hue means what, only how loud that hue is against a dark backdrop.
+Dark mode is a systematic ramp swap, not a separate palette: the page background becomes `#030712` (gray-950), card surfaces become `#111827` (gray-900, i.e. light mode's Ink Primary — the ramp inverts around its own midpoint), hairline borders become `#1f2937` (gray-800), and text roles shift roughly 7-8 steps toward the light end of the same gray scale (e.g. Ink Primary's dark-mode text sits around `#f3f4f6`). The four badge pairs keep their light-mode hex value for the "text" role and move only their background to a dark, low-opacity tint of the same hue (e.g. Live's dark badge is `rgba(20,83,45,0.4)` background — green-900 at 40% — with `#86efac` (green-300) text) — the badges never change which hue means what, only how loud that hue is against a dark backdrop. The three signal colors are the one exception to "text keeps its light-mode value": each is re-tuned per theme (see Primary, above), not ramp-swapped, since a systematic swap wouldn't reliably land on 4.5:1 for an arbitrary starting hue the way the badges' bg/text split does.
 
 ### Named Rules
 **The No-Brand-Color Rule.** Nothing in this system is colored for decoration or identity. A color is only ever earned by carrying a state — trend direction or data freshness. If a future addition wants a "brand" color, that is a deliberate identity decision to make explicitly, not a default to reach for.
@@ -192,8 +203,13 @@ Three radius steps cover the whole system, scaling roughly with a component's si
 
 ## Components
 
+### Focus & Motion (cross-cutting)
+- **Focus:** every interactive control — both buttons, the filter input, and the card's drag handle — shows a 2px `outline` in Ink Primary (`gray-900` light / `gray-100` dark), 2px offset, on keyboard focus (`:focus-visible`). This is never suppressed; a prior version of the filter input shipped with `focus:outline-none` and no replacement indicator, a real WCAG 2.4.7 gap caught by audit and fixed by making this a standing invariant instead of a per-component choice.
+- **Reduced motion:** judged per animation, not disabled globally. The card's hover-shadow transition and dnd-kit's drag-settle transform are both spatial and skipped entirely under `prefers-reduced-motion` (`motion-safe:` / a `usePrefersReducedMotion` check). The Refresh icon's spin is also gated behind `motion-safe:` since its "Refreshing…" label already carries the state without it. The staleness badge's tier color transition is the one animation kept regardless — a color change isn't the spatial movement reduced motion asks apps to remove.
+
 ### Buttons
 - **Shape:** 8px radius (`rounded-lg`) for both the labeled Refresh button and the icon-only theme toggle; the card's drag-handle icon button uses the tighter 4px (`rounded`) since it is scaled to sit inside the card's own corner.
+- **Touch target:** the drag handle's padding is 10px (`p-2.5`), giving a 36×36px hit area around its 16px icon — up from an original 24×24px, which was under the practical 44×44px minimum for what is this app's sole grab affordance on a required interaction (drag-and-drop reordering).
 - **Ghost/ Ideal (the only variant that exists):** transparent background, 1px `border-control` border, `ink-control` text, `surface-recessed` background on hover. There is no filled/primary button anywhere in this system — every button is an outline/ghost control, matching the "chrome recedes" brief.
 - **Disabled:** 50% opacity, `cursor: not-allowed` — used while a refresh is in flight or the rate-limit budget forces a cooldown ("Retry in Ns").
 - **Icon-only variants** (theme toggle, drag handle): no visible border in the card's drag-handle case (it only reveals its hover background on interaction); the header's theme toggle keeps its border for consistency with the Refresh button beside it.
@@ -208,15 +224,15 @@ Three radius steps cover the whole system, scaling roughly with a component's si
 - **Shadow Strategy:** see Elevation & Depth — the system's only hover-shadow behavior lives here.
 - **Border:** 1px `border-hairline`.
 - **Internal Padding:** 16px (`spacing.md`) on all sides.
-- **Anatomy:** a header row (28px circular coin logo + name + uppercase symbol, with the drag handle appearing top-right) above a price row (large USD price + monospace BTC line on the left; a 64×24px sparkline plus a trend delta chip on the right).
+- **Anatomy:** a header row (28px circular coin logo + an `<h2>` name + uppercase symbol, with the drag handle appearing top-right) above a price row (large USD price + monospace BTC line on the left; a 64×24px sparkline plus a trend delta chip on the right). The name is a real heading, not a styled div, so the grid is heading-navigable for screen-reader users.
 
 ### Inputs / Fields
 - **Style:** 8px radius, 1px `border-control` border, a leading icon (16px, `ink-tertiary`) absolutely positioned with generous left padding (36px) to clear it.
-- **Focus:** border darkens by one step (`border-control` → `gray-400`); no glow or ring — consistent with the system's flat-by-default posture.
+- **Focus:** border darkens by one step (`border-control` → `gray-400`) *and* shows the standing focus-visible outline (see Focus & Motion, above) — an earlier version relied on the border shift alone with `outline-none`, which measured as no visible keyboard-focus indicator at all.
 - **Error / Disabled:** not applicable — this input has no validation state.
 
 ### Sparkline (signature component)
-A 64×24px inline SVG trend indicator, unique to this system: the line itself is always drawn in `neutral-gray` regardless of trend direction, and only the single dot marking the most recent value is colored (`market-green`/`market-red`/`neutral-gray`) by trend. This is deliberate — a sparkline whose entire line changes color by direction reads as noisier and harder to place next to the delta chip's own trend color; keeping the line neutral and letting one dot carry the color keeps the "color = state, nothing else" rule intact even inside a chart.
+A 64×24px inline SVG trend indicator, unique to this system: the line itself is always drawn in the muted signal color (`STATUS_COLOR.muted`, i.e. Neutral Gray) regardless of trend direction, and only the single dot marking the most recent value is colored by trend (`STATUS_COLOR.good`/`.critical`/`.muted` — Market Green/Red/Neutral Gray, each resolved per-theme). This is deliberate — a sparkline whose entire line changes color by direction reads as noisier and harder to place next to the delta chip's own trend color; keeping the line neutral and letting one dot carry the color keeps the "color = state, nothing else" rule intact even inside a chart.
 
 ### Named Rules
 **The Muted-Line Rule.** A trend sparkline's line is always the neutral/muted hue; only its terminal point ever takes the signal color. No sparkline line is ever colored by direction across its full length.
@@ -226,9 +242,11 @@ A 64×24px inline SVG trend indicator, unique to this system: the line itself is
 ### Do:
 - **Do** treat every color as a state signal, not decoration — before adding any new hue, ask what state it represents.
 - **Do** pair every status or trend color with a non-color cue (an icon, a visible label, or both) — color alone never carries meaning anywhere in this system.
-- **Do** keep the drag/trend/staleness signal colors flowing through a single shared source of truth (`STATUS_COLOR_HEX` in code) rather than redefining them per component, so they cannot drift apart.
+- **Do** keep the drag/trend/staleness signal colors flowing through a single shared source of truth (`STATUS_COLOR` in code) rather than redefining them per component, so they cannot drift apart.
 - **Do** apply signal colors via inline style/CSS variables, never a Tailwind class built from a runtime constant.
 - **Do** keep the page title and a card's headline price at the same type size and weight — neither should ever out-rank the other.
+- **Do** give every interactive control a visible `:focus-visible` outline — see Focus & Motion under Components.
+- **Do** judge each animation against `prefers-reduced-motion` individually: drop spatial movement, keep color/state transitions that carry meaning.
 
 ### Don't:
 - **Don't** add a shadow to anything except a card, and only as hover feedback — not at rest, and not to any other component.
@@ -236,3 +254,5 @@ A 64×24px inline SVG trend indicator, unique to this system: the line itself is
 - **Don't** color a sparkline's full line by trend direction — only its end marker carries the signal color.
 - **Don't** add a filled/primary-style button; every button in this system is an outline/ghost control.
 - **Don't** raise any text above the 20px/600 "Title" tier without a deliberate, system-wide decision — there is no hero-text precedent to extend from.
+- **Don't** ship `outline-none` (or equivalent) on any focusable element without an equally visible replacement indicator — this has already regressed once.
+- **Don't** give a single signal color one fixed hex for both themes; verify each theme's contrast independently before reusing a value across light and dark.

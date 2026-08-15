@@ -1,15 +1,19 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-15T01:53:24Z",
+  "generatedAt": "2026-08-15T15:57:45Z",
   "title": "Design System: Crypto Dashboard",
   "extensions": {
     "colorMeta": {
-      "market-green": { "role": "status", "displayName": "Market Green", "canonical": "#0ca30c", "tonalRamp": ["#0a2e0a", "#0f4f0f", "#137013", "#0ca30c", "#3fc23f", "#72d972", "#a6eca6", "#dcf9dc"] },
-      "market-red": { "role": "status", "displayName": "Market Red", "canonical": "#d03b3b", "tonalRamp": ["#3d0f0f", "#661a1a", "#9c2929", "#d03b3b", "#dd6b6b", "#e89999", "#f2c2c2", "#fae3e3"] },
-      "neutral-gray": { "role": "status", "displayName": "Neutral Gray", "canonical": "#898781", "tonalRamp": ["#232220", "#3d3c39", "#5c5a56", "#726f6a", "#898781", "#a8a6a1", "#c8c6c2", "#e6e5e2"] },
+      "market-green-light": { "role": "status", "displayName": "Market Green (light)", "canonical": "#15803d", "tonalRamp": ["#062206", "#0d3d0d", "#0f5f0f", "#15803d", "#3ea065", "#71bf8d", "#a5dfba", "#dcf4e2"] },
+      "market-green-dark": { "role": "status", "displayName": "Market Green (dark)", "canonical": "#0ca30c", "tonalRamp": ["#0a2e0a", "#0f4f0f", "#137013", "#0ca30c", "#3fc23f", "#72d972", "#a6eca6", "#dcf9dc"] },
+      "market-red-light": { "role": "status", "displayName": "Market Red (light)", "canonical": "#d03b3b", "tonalRamp": ["#3d0f0f", "#661a1a", "#9c2929", "#d03b3b", "#dd6b6b", "#e89999", "#f2c2c2", "#fae3e3"] },
+      "market-red-dark": { "role": "status", "displayName": "Market Red (dark)", "canonical": "#ef4444", "tonalRamp": ["#450a0a", "#7f1d1d", "#b91c1c", "#ef4444", "#f47171", "#f8a3a3", "#fbc9c9", "#fde3e3"] },
+      "neutral-gray-light": { "role": "status", "displayName": "Neutral Gray (light)", "canonical": "#676561", "tonalRamp": ["#1a1918", "#302f2d", "#4a4845", "#676561", "#847f79", "#a3a19d", "#c4c2be", "#e5e4e2"] },
+      "neutral-gray-dark": { "role": "status", "displayName": "Neutral Gray (dark)", "canonical": "#898781", "tonalRamp": ["#232220", "#3d3c39", "#5c5a56", "#726f6a", "#898781", "#a8a6a1", "#c8c6c2", "#e6e5e2"] },
       "ink-primary": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111827" },
       "ink-control": { "role": "neutral", "displayName": "Ink Control", "canonical": "#374151" },
       "ink-secondary": { "role": "neutral", "displayName": "Ink Secondary", "canonical": "#6b7280" },
+      "ink-icon": { "role": "neutral", "displayName": "Ink Icon", "canonical": "#4b5563" },
       "ink-tertiary": { "role": "neutral", "displayName": "Ink Tertiary", "canonical": "#9ca3af" },
       "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#ffffff" },
       "surface-recessed": { "role": "neutral", "displayName": "Surface Recessed", "canonical": "#f9fafb" },
@@ -35,8 +39,11 @@
       { "name": "card-hover", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Card's only elevation change, on hover — signals the card is liftable/draggable. No other component in the system ever uses a shadow." }
     ],
     "motion": [
-      { "name": "card-shadow-transition", "value": "box-shadow 150ms ease", "purpose": "Smooths the rest-to-hover shadow step on cards (Tailwind's default transition-shadow timing)." },
-      { "name": "drag-transform", "value": "dnd-kit's own transform/transition (CSS.Transform.toString)", "purpose": "Card position animates during drag-and-drop reorder; no custom easing curve is defined beyond dnd-kit's default." }
+      { "name": "card-shadow-transition", "value": "motion-safe:transition-shadow (box-shadow 150ms ease)", "purpose": "Smooths the rest-to-hover shadow step on cards. Gated behind motion-safe: — spatial-adjacent enough to skip under prefers-reduced-motion." },
+      { "name": "drag-transform", "value": "dnd-kit's transform/transition, suppressed via usePrefersReducedMotion", "purpose": "Card position animates during drag-and-drop reorder. The transition string is dropped entirely under reduced motion — the drop still lands correctly, just instantly instead of sliding." },
+      { "name": "refresh-spin", "value": "motion-safe:animate-spin", "purpose": "RefreshCw icon spins while a refresh is in flight. Gated behind motion-safe: since the \"Refreshing…\" label already carries the state without it." },
+      { "name": "badge-color-transition", "value": "transition-colors duration-200", "purpose": "Staleness badge's tier color change. Deliberately NOT gated by motion-safe: — a color transition isn't the spatial movement reduced motion asks apps to remove." },
+      { "name": "focus-ring", "value": "instant (no transition)", "purpose": "focus-visible outline appears/disappears immediately — a focus indicator that faded in would be slower to notice, not more polished." }
     ],
     "breakpoints": [
       { "name": "sm", "value": "640px" },
@@ -51,31 +58,39 @@
       "refersTo": "button-ghost",
       "description": "The only button style in the system — an outline/ghost control used for Refresh and other labeled actions.",
       "html": "<button class=\"ds-btn-ghost\">Refresh</button>",
-      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; transition: background 150ms ease; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #6b7280; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-ghost:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Icon Button",
       "kind": "button",
       "refersTo": "icon-button",
-      "description": "Icon-only control used for the theme toggle and each card's drag handle.",
+      "description": "Icon-only control used for the theme toggle.",
       "html": "<button class=\"ds-btn-icon\" aria-label=\"Toggle theme\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/></svg></button>",
-      "css": ".ds-btn-icon { background: transparent; color: #6b7280; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; transition: background 150ms ease; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #6b7280; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-btn-icon { background: transparent; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-icon:focus-visible { outline-color: #f3f4f6; }"
+    },
+    {
+      "name": "Drag Handle",
+      "kind": "button",
+      "refersTo": "drag-handle",
+      "description": "Icon-only grab affordance on each card, borderless at rest. Padding was grown from 4px to 10px (24x24 -> 36x36 hit area) after an accessibility audit found it under the practical 44x44 touch-target minimum for the app's sole drag-and-drop grab point.",
+      "html": "<button class=\"ds-drag-handle\" aria-label=\"Reorder Bitcoin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"6\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"18\" r=\"1\"/><circle cx=\"15\" cy=\"6\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"18\" r=\"1\"/></svg></button>",
+      "css": ".ds-drag-handle { background: transparent; color: #9ca3af; border: none; border-radius: 0.25rem; padding: 10px; touch-action: none; } .ds-drag-handle:hover { background: #f3f4f6; color: #4b5563; } .ds-drag-handle:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-drag-handle:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Crypto Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "The system's signature container: coin identity + logo up top, USD/BTC price and trend sparkline below.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><div class=\"ds-card-logo\"></div><div><div class=\"ds-card-name\">Ethereum</div><div class=\"ds-card-symbol\">ETH</div></div></div><div class=\"ds-card-price\">$3,214.50</div><div class=\"ds-card-btc\">0.04123000 BTC</div></div>",
-      "css": ".ds-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 16px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: box-shadow 150ms ease; } .ds-card:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); } .ds-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; } .ds-card-logo { width: 28px; height: 28px; border-radius: 9999px; background: #f3f4f6; } .ds-card-name { font-size: 1.25rem; font-weight: 600; color: #111827; line-height: 1.3; } .ds-card-symbol { font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; } .ds-card-price { font-size: 1.25rem; font-weight: 600; color: #111827; } .ds-card-btc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; color: #6b7280; margin-top: 2px; }"
+      "description": "The system's signature container: coin identity + logo up top (name is a real <h2>, not a styled div), USD/BTC price and trend sparkline below.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><div class=\"ds-card-logo\"></div><div><h2 class=\"ds-card-name\">Ethereum</h2><div class=\"ds-card-symbol\">ETH</div></div></div><div class=\"ds-card-price\">$3,214.50</div><div class=\"ds-card-btc\">0.04123000 BTC</div></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 16px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-card:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); } @media (prefers-reduced-motion: no-preference) { .ds-card { transition: box-shadow 150ms ease; } } .ds-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; } .ds-card-logo { width: 28px; height: 28px; border-radius: 9999px; background: #f3f4f6; } .ds-card-name { font-size: 1.25rem; font-weight: 600; color: #111827; line-height: 1.3; margin: 0; } .ds-card-symbol { font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; } .ds-card-price { font-size: 1.25rem; font-weight: 600; color: #111827; } .ds-card-btc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; color: #6b7280; margin-top: 2px; }"
     },
     {
       "name": "Staleness Badge (Live)",
       "kind": "chip",
       "refersTo": "badge-live",
-      "description": "One of four fixed-color pill badges signaling data freshness; always paired with a solid dot so state is never color-alone. Delayed/Stale/Never swap only the bg/text token pair.",
+      "description": "One of four fixed-color pill badges signaling data freshness; always paired with a solid dot so state is never color-alone. Delayed/Stale/Never swap only the bg/text token pair. The tier color change animates via a 200ms transition (kept under reduced motion — see extensions.motion).",
       "html": "<span class=\"ds-badge ds-badge-live\"><span class=\"ds-badge-dot\"></span>Live</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; } .ds-badge-live { background: #dcfce7; color: #166534; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; transition: background-color 200ms, color 200ms; } .ds-badge-live { background: #dcfce7; color: #166534; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; }"
     },
     {
       "name": "Filter Input",
@@ -83,13 +98,13 @@
       "refersTo": "input-filter",
       "description": "The page's single text filter, with a leading search icon.",
       "html": "<div class=\"ds-input-wrap\"><svg class=\"ds-input-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-input-filter\" placeholder=\"Filter by name or symbol…\" /></div>",
-      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #111827; } .ds-input-filter::placeholder { color: #9ca3af; } .ds-input-filter:focus-visible { outline: none; border-color: #9ca3af; }"
+      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #111827; } .ds-input-filter::placeholder { color: #9ca3af; } .ds-input-filter:focus { border-color: #9ca3af; } .ds-input-filter:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-input-filter:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Trend Sparkline",
       "kind": "custom",
-      "description": "Signature component: a 64x24 inline SVG trend line, always muted, with only its final point colored by trend direction.",
-      "html": "<svg class=\"ds-sparkline\" width=\"64\" height=\"24\" viewBox=\"0 0 64 24\"><path d=\"M4,18 L20,12 L36,15 L52,7 L60,4\" fill=\"none\" stroke=\"#898781\" stroke-width=\"2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"4\" r=\"4\" fill=\"#0ca30c\"/></svg>",
+      "description": "Signature component: a 64x24 inline SVG trend line, always muted, with only its final point colored by trend direction. Colors resolve from --status-good/--status-critical/--status-muted, which differ per theme (see colorMeta market-green-light/dark etc.) — this snippet shows the light-mode values.",
+      "html": "<svg class=\"ds-sparkline\" width=\"64\" height=\"24\" viewBox=\"0 0 64 24\"><path d=\"M4,18 L20,12 L36,15 L52,7 L60,4\" fill=\"none\" stroke=\"#676561\" stroke-width=\"2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"4\" r=\"4\" fill=\"#15803d\"/></svg>",
       "css": ".ds-sparkline { display: block; }"
     }
   ],
@@ -106,23 +121,30 @@
     "rules": [
       { "name": "The No-Brand-Color Rule", "body": "Nothing in this system is colored for decoration or identity. A color is only ever earned by carrying a state — trend direction or data freshness. If a future addition wants a \"brand\" color, that is a deliberate identity decision to make explicitly, not a default to reach for.", "section": "colors" },
       { "name": "The Static-Scan Rule", "body": "Signal colors (Market Green/Red/Neutral Gray) must be applied via inline style (or CSS variables), never as a Tailwind arbitrary-value class built from a JS constant — Tailwind's static source scanner cannot see a template-literal class name at build time and will silently drop it. This was a real bug in this codebase; the fix is the standing rule.", "section": "colors" },
+      { "name": "The Per-Theme Signal Rule", "body": "A signal color never gets one fixed hex shared by both themes. Each of the three signal colors is tuned independently for light and dark so it clears 4.5:1 against its own card surface — a value picked for one theme is not assumed to work in the other without checking.", "section": "colors" },
       { "name": "The One-Tier-Up Rule", "body": "Nothing in the interface is allowed to out-rank a card's own price in size or weight — the page title and the price sit at the exact same visual weight on purpose, reinforcing that the data is the content, not the chrome around it.", "section": "typography" },
       { "name": "The Flat-By-Default Rule", "body": "Shadows exist solely as hover feedback on interactive cards. No other component — button, input, badge, header — ever gets a shadow, at rest or on hover; their separation comes from a border or a background shift instead.", "section": "elevation" },
-      { "name": "The Muted-Line Rule", "body": "A trend sparkline's line is always the neutral/muted hue; only its terminal point ever takes the signal color. No sparkline line is ever colored by direction across its full length.", "section": "components" }
+      { "name": "The Muted-Line Rule", "body": "A trend sparkline's line is always the neutral/muted hue; only its terminal point ever takes the signal color. No sparkline line is ever colored by direction across its full length.", "section": "components" },
+      { "name": "The Visible-Focus Rule", "body": "Every interactive control shows a 2px focus-visible outline in Ink Primary, 2px offset, on keyboard focus — never suppressed. A prior version shipped outline-none on the filter input with no replacement, a real WCAG 2.4.7 gap; this is now a standing invariant, not a per-component choice.", "section": "components" },
+      { "name": "The Reduced-Motion Carve-Out", "body": "Spatial motion (shadow transitions, drag-settle transforms, the refresh spin) is skipped entirely under prefers-reduced-motion. Color and state transitions that carry meaning, like the staleness badge's tier color change, are kept — reduced motion removes movement, not all feedback.", "section": "components" }
     ],
     "dos": [
       "Do treat every color as a state signal, not decoration — before adding any new hue, ask what state it represents.",
       "Do pair every status or trend color with a non-color cue (an icon, a visible label, or both) — color alone never carries meaning anywhere in this system.",
-      "Do keep the drag/trend/staleness signal colors flowing through a single shared source of truth (STATUS_COLOR_HEX in code) rather than redefining them per component, so they cannot drift apart.",
+      "Do keep the drag/trend/staleness signal colors flowing through a single shared source of truth (STATUS_COLOR in code) rather than redefining them per component, so they cannot drift apart.",
       "Do apply signal colors via inline style/CSS variables, never a Tailwind class built from a runtime constant.",
-      "Do keep the page title and a card's headline price at the same type size and weight — neither should ever out-rank the other."
+      "Do keep the page title and a card's headline price at the same type size and weight — neither should ever out-rank the other.",
+      "Do give every interactive control a visible :focus-visible outline.",
+      "Do judge each animation against prefers-reduced-motion individually: drop spatial movement, keep color/state transitions that carry meaning."
     ],
     "donts": [
       "Don't add a shadow to anything except a card, and only as hover feedback — not at rest, and not to any other component.",
       "Don't introduce a brand/decorative accent color; every non-neutral pixel must be answering \"what state is this.\"",
       "Don't color a sparkline's full line by trend direction — only its end marker carries the signal color.",
       "Don't add a filled/primary-style button; every button in this system is an outline/ghost control.",
-      "Don't raise any text above the 20px/600 \"Title\" tier without a deliberate, system-wide decision — there is no hero-text precedent to extend from."
+      "Don't raise any text above the 20px/600 \"Title\" tier without a deliberate, system-wide decision — there is no hero-text precedent to extend from.",
+      "Don't ship outline-none (or equivalent) on any focusable element without an equally visible replacement indicator — this has already regressed once.",
+      "Don't give a single signal color one fixed hex for both themes; verify each theme's contrast independently before reusing a value across light and dark."
     ]
   }
 }
