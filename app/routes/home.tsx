@@ -46,31 +46,38 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       </header>
 
-      {tier === "never" && !lastError && (
-        <p className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-          Loading first rates…
-        </p>
-      )}
-      {tier === "never" && lastError && (
-        <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
-          Live rates are temporarily unavailable — showing the coin list only. Reconnecting automatically.
-        </p>
-      )}
-      {tier === "stale" && (
-        <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
-          Live rates are temporarily unavailable — showing last known data. Reconnecting automatically.
-        </p>
-      )}
+      <main className="mx-auto max-w-6xl p-6">
+        {tier === "never" && !lastError && (
+          <p className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+            Loading first rates…
+          </p>
+        )}
+        {tier === "never" && lastError && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
+            Live rates are temporarily unavailable — showing the coin list only. Reconnecting automatically.
+          </p>
+        )}
+        {tier === "stale" && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
+            Live rates are temporarily unavailable — showing last known data. Reconnecting automatically.
+          </p>
+        )}
 
-      <div className="mb-4">
-        <FilterInput value={filterQuery} onChange={setFilterQuery} />
-      </div>
+        <div className="mb-5">
+          <FilterInput value={filterQuery} onChange={setFilterQuery} />
+        </div>
 
-      {visibleCoins.length === 0 ? (
-        <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
-      ) : (
-        <CryptoGrid coins={visibleCoins} rates={rates} onReorder={reorderVisible} />
-      )}
-    </main>
+        {visibleCoins.length === 0 ? (
+          <EmptyState message={`No coins match "${filterQuery.trim()}".`} />
+        ) : (
+          <CryptoGrid
+            coins={visibleCoins}
+            rates={rates}
+            priceHistoryByCode={priceHistoryByCode}
+            onReorder={reorderVisible}
+          />
+        )}
+      </main>
+    </div>
   );
 }

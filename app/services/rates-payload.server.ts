@@ -17,22 +17,22 @@ async function buildPayload(): Promise<RatesPayload> {
 }
 
 /**
- * For reads (page load, client polling): triggers the cold-start bootstrap
- * fetch if the cache has never been populated.
+ * For reads (page load, client polling): triggers a refresh attempt if the
+ * cache is stale enough (including a cold, never-fetched cache) — see
+ * rate-cache.server.ts's ensureFresh for why this is reactive rather than a
+ * background timer.
  */
 export async function getRatesPayloadForRead(): Promise<RatesPayload> {
-  rateCache.markPolled();
-  await rateCache.ensureBootstrap();
+  await rateCache.ensureFresh();
   return buildPayload();
 }
 
 /**
  * For the manual-refresh action only. Deliberately does NOT call
- * ensureBootstrap — requestManualRefresh() is already this request's one
- * fetch attempt, and calling ensureBootstrap afterward would let a failed
- * cold-start refresh silently consume a second token from the same click.
+ * ensureFresh — requestManualRefresh() is already this request's one fetch
+ * attempt, and calling ensureFresh afterward would let a failed refresh
+ * silently consume a second token from the same click.
  */
 export async function getRatesPayloadAfterManualRefresh(): Promise<RatesPayload> {
-  rateCache.markPolled();
   return buildPayload();
 }

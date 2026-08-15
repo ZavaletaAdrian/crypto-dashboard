@@ -8,9 +8,9 @@ function makeFetchRates(rates: Record<string, string>) {
 describe("rate cache", () => {
   it("derives both USD and BTC pricing for every coin from one Coinbase call", async () => {
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002", ETH: "0.0006" });
-    const cache = createRateCache({ fetchRates, autoStart: false });
+    const cache = createRateCache({ fetchRates });
 
-    await cache.ensureBootstrap();
+    await cache.ensureFresh();
 
     expect(fetchRates).toHaveBeenCalledTimes(1);
     const snapshot = cache.getSnapshot();
@@ -22,36 +22,56 @@ describe("rate cache", () => {
     expect(snapshot.ratesByCode.ETH?.btc).toBeCloseTo(0.00002 / 0.0006);
   });
 
-  it("does not re-fetch on a second bootstrap once the cache is warm", async () => {
+  it("does not re-fetch on a second ensureFresh call while the cache is still within freshIntervalMs", async () => {
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
-    const cache = createRateCache({ fetchRates, autoStart: false });
+    const cache = createRateCache({ fetchRates });
 
-    await cache.ensureBootstrap();
-    await cache.ensureBootstrap();
+    await cache.ensureFresh();
+    await cache.ensureFresh();
 
     expect(fetchRates).toHaveBeenCalledTimes(1);
   });
 
-  it("dedupes concurrent bootstrap calls (multiple tabs at cold start) into a single fetch", async () => {
+  it("dedupes concurrent ensureFresh calls (multiple tabs at cold start) into a single fetch", async () => {
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
-    const cache = createRateCache({ fetchRates, autoStart: false });
+    const cache = createRateCache({ fetchRates });
 
-    await Promise.all([cache.ensureBootstrap(), cache.ensureBootstrap(), cache.ensureBootstrap()]);
+    await Promise.all([cache.ensureFresh(), cache.ensureFresh(), cache.ensureFresh()]);
 
     expect(fetchRates).toHaveBeenCalledTimes(1);
   });
 
-  it("manual refresh shares the same token bucket as the background loop and never exceeds capacity", async () => {
+  it("triggers a new fetch once the cache ages past freshIntervalMs on the next read", async () => {
+    // This is the reactive replacement for a background timer: no independent
+    // schedule, just "is the cache stale enough as of this request?" — which
+    // works the same whether the process is long-lived or a serverless
+    // invocation that only runs while handling a request.
+    let now = 0;
+    const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
+    const cache = createRateCache({ fetchRates, now: () => now, freshIntervalMs: 8000 });
+
+    await cache.ensureFresh();
+    expect(fetchRates).toHaveBeenCalledTimes(1);
+
+    now += 4000;
+    await cache.ensureFresh();
+    expect(fetchRates).toHaveBeenCalledTimes(1); // still within freshIntervalMs
+
+    now += 4000; // now 8000ms since the last fetch
+    await cache.ensureFresh();
+    expect(fetchRates).toHaveBeenCalledTimes(2);
+  });
+
+  it("manual refresh shares the same token bucket as ensureFresh and never exceeds capacity", async () => {
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
     const cache = createRateCache({
       fetchRates,
       capacity: 3,
       refillIntervalMs: 6000,
       manualGuardMs: 0,
-      autoStart: false,
     });
 
-    await cache.ensureBootstrap();
+    await cache.ensureFresh();
     const r1 = await cache.requestManualRefresh();
     const r2 = await cache.requestManualRefresh();
     const r3 = await cache.requestManualRefresh();
@@ -71,7 +91,7 @@ describe("rate cache", () => {
           resolveFetch = resolve;
         }).then(() => ({ currency: "USD", rates: { USD: "1", BTC: "0.00002" } })),
     );
-    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0, autoStart: false });
+    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0 });
 
     const p1 = cache.requestManualRefresh();
     const p2 = cache.requestManualRefresh();
@@ -93,7 +113,7 @@ describe("rate cache", () => {
           rejectFetch = reject;
         }),
     );
-    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0, autoStart: false });
+    const cache = createRateCache({ fetchRates, capacity: 5, manualGuardMs: 0 });
 
     const p1 = cache.requestManualRefresh();
     const p2 = cache.requestManualRefresh();
@@ -110,33 +130,13 @@ describe("rate cache", () => {
     const fetchRates = vi.fn(async () => {
       throw new Error("network down");
     });
-    const cache = createRateCache({ fetchRates, autoStart: false });
+    const cache = createRateCache({ fetchRates });
 
-    await cache.ensureBootstrap();
+    await cache.ensureFresh();
 
     const snapshot = cache.getSnapshot();
     expect(snapshot.tier).toBe("never");
     expect(snapshot.lastError).toMatch(/network down/);
-  });
-
-  it("proactive tick refreshes once the cache ages past the background interval, given an active poller", async () => {
-    let now = 0;
-    const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
-    const cache = createRateCache({
-      fetchRates,
-      now: () => now,
-      backgroundIntervalMs: 8000,
-      idleTimeoutMs: 30_000,
-      autoStart: false,
-    });
-
-    await cache.ensureBootstrap();
-    cache.markPolled();
-    expect(fetchRates).toHaveBeenCalledTimes(1);
-
-    now += 8000;
-    await cache._tick();
-    expect(fetchRates).toHaveBeenCalledTimes(2);
   });
 
   it("reports a correct 'live' tier even when the injected clock's fetch timestamp is exactly 0", async () => {
@@ -144,32 +144,14 @@ describe("rate cache", () => {
     // falsy, misreporting "never fetched". Guards against that truthy-check bug.
     let now = 0;
     const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
-    const cache = createRateCache({ fetchRates, now: () => now, autoStart: false });
+    const cache = createRateCache({ fetchRates, now: () => now });
 
-    await cache.ensureBootstrap();
+    await cache.ensureFresh();
     now += 5;
 
     const snapshot = cache.getSnapshot();
     expect(snapshot.fetchedAt).toBe(0);
     expect(snapshot.ageMs).toBe(5);
     expect(snapshot.tier).toBe("live");
-  });
-
-  it("pauses the proactive loop when idle so it doesn't spend budget with no viewers", async () => {
-    let now = 0;
-    const fetchRates = makeFetchRates({ USD: "1", BTC: "0.00002" });
-    const cache = createRateCache({
-      fetchRates,
-      now: () => now,
-      backgroundIntervalMs: 8000,
-      idleTimeoutMs: 30_000,
-      autoStart: false,
-    });
-
-    await cache.ensureBootstrap();
-    now += 40_000;
-    await cache._tick();
-
-    expect(fetchRates).toHaveBeenCalledTimes(1);
   });
 });
