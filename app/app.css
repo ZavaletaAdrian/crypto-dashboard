@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (`.dark` on <html>), driven by ThemeToggle — not the
+   OS media query alone, so a user's explicit choice always wins. The inline
+   script in root.tsx sets this class before first paint (no flash), falling
+   back to the system preference only when the user hasn't chosen yet. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -8,8 +14,8 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+html.dark {
+  color-scheme: dark;
 }

@@ -9,6 +9,7 @@ import { StalenessBadge } from "~/components/StalenessBadge";
 import { RefreshButton } from "~/components/RefreshButton";
 import { FilterInput } from "~/components/FilterInput";
 import { EmptyState } from "~/components/EmptyState";
+import { ThemeToggle } from "~/components/ThemeToggle";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -39,6 +40,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             isRefreshing={refreshState === "refreshing"}
             retryAvailableAt={retryAvailableAt}
           />
+          <ThemeToggle />
         </div>
       </header>
 

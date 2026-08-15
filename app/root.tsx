@@ -23,6 +23,16 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+const THEME_INIT_SCRIPT = `
+  (function () {
+    try {
+      var stored = localStorage.getItem("theme");
+      var isDark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", isDark);
+    } catch (e) {}
+  })();
+`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -31,6 +41,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Runs before first paint so there's no flash of the wrong theme —
+            must stay a plain blocking script, not something React hydrates. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body>
         {children}
