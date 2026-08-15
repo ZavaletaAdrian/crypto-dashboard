@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type Theme = "light" | "dark";
 
@@ -40,20 +40,19 @@ export interface UseThemeResult {
  * `<html>`), and its persistence — kept out of ThemeToggle so that
  * component stays purely presentational, matching this repo's convention
  * of cross-cutting state living in a hook (see useOrderedCoins).
+ *
+ * Mount only ever sets the DOM class + React state — it never writes to
+ * localStorage. Persistence happens exclusively inside toggleTheme, which
+ * is by definition an explicit user choice, so a system-derived default on
+ * a first-time visit is never silently baked in as a permanent preference
+ * (future OS-level theme changes keep being respected until they actually toggle it).
  */
 export function useTheme(): UseThemeResult {
   const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
-  // Only true once the user has actually chosen (or a prior choice was
-  // already stored) — a system-derived default must NOT get persisted,
-  // or a first-time visitor's OS preference silently becomes a permanent
-  // stored choice and stops following future OS-level changes.
-  const hasExplicitChoice = useRef(false);
 
   useEffect(() => {
-    const stored = readStoredTheme();
-    const initial = stored ?? getSystemTheme();
-    if (stored) hasExplicitChoice.current = true;
+    const initial = readStoredTheme() ?? getSystemTheme();
     document.documentElement.classList.toggle("dark", initial === "dark");
     setTheme(initial);
     setMounted(true);
@@ -74,7 +73,6 @@ export function useTheme(): UseThemeResult {
   // render cycle at all, so toggleTheme can stay referentially stable too.
   const toggleTheme = useCallback(() => {
     const next: Theme = document.documentElement.classList.contains("dark") ? "light" : "dark";
-    hasExplicitChoice.current = true;
     document.documentElement.classList.toggle("dark", next === "dark");
     persistTheme(next);
     setTheme(next);
