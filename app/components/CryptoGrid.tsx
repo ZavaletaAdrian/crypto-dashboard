@@ -9,7 +9,7 @@ interface CryptoGridProps {
   /** Already the ordered + currently-visible (filtered) subset. */
   coins: Coin[];
   rates: CoinRateMap;
-  priceHistoryByCode?: Record<string, number[]>;
+  priceHistoryByCode?: Partial<Record<string, number[]>>;
   onReorder: (fromIndex: number, toIndex: number, visibleCodes: string[]) => void;
 }
 

@@ -9,8 +9,8 @@ import type { CoinRateMap } from "~/types/coin";
  * deliberately scoped as "recent, this session" rather than pretending to
  * be a 24h chart.
  */
-export function usePriceHistory(rates: CoinRateMap): Record<string, number[]> {
-  const [historyByCode, setHistoryByCode] = useState<Record<string, number[]>>({});
+export function usePriceHistory(rates: CoinRateMap): Partial<Record<string, number[]>> {
+  const [historyByCode, setHistoryByCode] = useState<Partial<Record<string, number[]>>>({});
 
   useEffect(() => {
     setHistoryByCode((prev) => {

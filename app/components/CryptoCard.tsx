@@ -86,13 +86,16 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
           <div className="flex shrink-0 flex-col items-end gap-1">
             <Sparkline values={priceHistory} trend={trend} />
             {change !== null && (
-              <span
-                className={`inline-flex items-center gap-0.5 text-xs font-medium ${TREND_TEXT_STYLES[trend]}`}
-                title="Change since this page was opened (not a 24h change)"
-              >
-                <TrendIcon className="h-3 w-3" aria-hidden="true" />
-                {formatPercent(change)}
-              </span>
+              <div className="flex flex-col items-end">
+                <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${TREND_TEXT_STYLES[trend]}`}>
+                  <TrendIcon className="h-3 w-3" aria-hidden="true" />
+                  {formatPercent(change)}
+                </span>
+                {/* Visible, not just a hover title — a tooltip alone isn't reliably
+                    discoverable on touch devices or by assistive tech, and without
+                    it "+2.34%" reads like the 24h change most crypto UIs show. */}
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">this session</span>
+              </div>
             )}
           </div>
         )}
