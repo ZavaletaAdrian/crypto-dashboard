@@ -51,7 +51,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
   const TrendIcon = TREND_ICONS[trend];
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md motion-safe:transition-shadow dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           {iconUrl ? (
@@ -60,7 +60,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
             <div className="h-7 w-7 shrink-0 rounded-full bg-gray-100 dark:bg-gray-800" aria-hidden="true" />
           )}
           <div className="min-w-0">
-            <div className="truncate leading-tight font-semibold">{coin.name}</div>
+            <h2 className="truncate leading-tight font-semibold">{coin.name}</h2>
             <div className="text-xs font-medium text-gray-500 uppercase dark:text-gray-400">{coin.code}</div>
           </div>
         </div>
@@ -68,7 +68,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
           <button
             type="button"
             aria-label={`Reorder ${coin.name}`}
-            className="shrink-0 touch-none rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
+            className="shrink-0 touch-none rounded p-2.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
             {...dragHandleProps}
           >
             <GripVertical className="h-4 w-4" aria-hidden="true" />

@@ -3,6 +3,7 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { CryptoCard } from "./CryptoCard";
+import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 import type { Coin, CoinRateMap } from "~/types/coin";
 
 interface CryptoGridProps {
@@ -19,6 +20,10 @@ export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }:
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+  // Read once for the whole grid, not per card — one matchMedia subscription
+  // instead of one per rendered card, which matters once T2's 500+ item case
+  // is in play (see README).
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -45,6 +50,7 @@ export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }:
               coin={coin}
               rate={rates[coin.code]}
               priceHistory={priceHistoryByCode[coin.code] ?? []}
+              prefersReducedMotion={prefersReducedMotion}
             />
           ))}
         </div>
@@ -57,16 +63,20 @@ interface SortableCryptoCardProps {
   coin: Coin;
   rate: CoinRateMap[string];
   priceHistory: number[];
+  prefersReducedMotion: boolean;
 }
 
-function SortableCryptoCard({ coin, rate, priceHistory }: SortableCryptoCardProps) {
+function SortableCryptoCard({ coin, rate, priceHistory, prefersReducedMotion }: SortableCryptoCardProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: coin.code,
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // dnd-kit's settle-into-place transition animates a spatial (transform)
+    // change, which prefers-reduced-motion asks apps to remove — the drop
+    // still lands correctly, just instantly instead of sliding.
+    transition: prefersReducedMotion ? undefined : transition,
     opacity: isDragging ? 0.5 : 1,
   };
 
