@@ -4,6 +4,7 @@ import { getRatesPayloadForRead } from "~/services/rates-payload.server";
 import { useRatesPolling } from "~/hooks/useRatesPolling";
 import { useOrderedCoins } from "~/hooks/useOrderedCoins";
 import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
+import { usePriceHistory } from "~/hooks/usePriceHistory";
 import { useTheme } from "~/hooks/useTheme";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
@@ -27,22 +28,28 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { coins, rates, ageMs, tier, lastError, refresh, refreshState, retryAvailableAt } =
     useRatesPolling(loaderData);
   const { orderedCoins, reorderVisible } = useOrderedCoins(coins);
+  const priceHistoryByCode = usePriceHistory(rates);
   const { theme, mounted: themeMounted, toggleTheme } = useTheme();
   const [filterQuery, setFilterQuery] = useState("");
   const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Crypto Dashboard</h1>
-        <div className="flex items-center gap-3">
-          <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
-          <RefreshButton
-            onRefresh={refresh}
-            isRefreshing={refreshState === "refreshing"}
-            retryAvailableAt={retryAvailableAt}
-          />
-          <ThemeToggle theme={theme} mounted={themeMounted} onToggle={toggleTheme} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/80">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Crypto Dashboard</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Live exchange rates via Coinbase</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
+            <RefreshButton
+              onRefresh={refresh}
+              isRefreshing={refreshState === "refreshing"}
+              retryAvailableAt={retryAvailableAt}
+            />
+            <ThemeToggle theme={theme} mounted={themeMounted} onToggle={toggleTheme} />
+          </div>
         </div>
       </header>
 
