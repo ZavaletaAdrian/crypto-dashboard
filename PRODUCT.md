@@ -23,7 +23,7 @@ Not competing in a market — its distinguishing claim is architectural. It name
 
 ## Operating Context
 
-- Data source: Coinbase's public, unauthenticated `/v2/exchange-rates` and `/v2/currencies/crypto` endpoints (one call refreshes USD and BTC pricing for every coin via a shared cross-rate).
+- Data source: Coinbase's public, unauthenticated `/v2/exchange-rates` endpoint for pricing (one call refreshes USD and BTC pricing for every coin via a shared cross-rate) and `/v2/currencies/crypto` for coin names/metadata.
 - Self-imposed rate budget of 10 requests/minute (an assessment constraint, not Coinbase's real limit), enforced server-side by a token bucket shared across every client/tab.
 - Deployed on Vercel, on serverless functions (no persistent process) — this has real, already-encountered operational consequences (see Capabilities and Constraints).
 - Git workflow mirrors a real team: `main` (prod) / `develop` (UAT) / one feature branch per unit of work, each merged to `develop` via PR with mandatory GitHub Copilot review rounds before merge.
