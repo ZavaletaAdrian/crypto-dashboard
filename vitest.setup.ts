@@ -12,3 +12,18 @@ class ResizeObserverStub {
 if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
 }
+
+// jsdom doesn't implement matchMedia either. Defaults to "no match" (light
+// mode) — tests that care about a specific query result mock it themselves.
+if (typeof window !== "undefined" && typeof window.matchMedia === "undefined") {
+  window.matchMedia = (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  });
+}

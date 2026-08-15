@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (`.dark` on <html>), driven by ThemeToggle — not the
+   OS media query alone, so a user's explicit choice always wins. The inline
+   script in root.tsx sets this class before first paint (no flash), falling
+   back to the system preference only when the user hasn't chosen yet. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -8,8 +14,25 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
 }
+
+/* Explicit in both directions — not just html.dark — so UA chrome (form
+   controls, scrollbars) follows the resolved class state even when it
+   disagrees with the OS preference (e.g. user picked light while their OS
+   prefers dark); otherwise color-scheme would stay unset in that case and
+   some UA widgets could still render dark. */
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Deliberately no @media (prefers-color-scheme) fallback for when JS is
+   blocked/disabled: doing that correctly (respecting an explicit light
+   choice even when the OS prefers dark) needs a second marker class kept in
+   permanent sync with .dark, purely for a scenario — no JS at all — where
+   this app has no working functionality regardless (filtering, drag-and-
+   drop, and live polling all require it). Accepted as an out-of-scope edge
+   case rather than adding that bookkeeping for a still-broken experience. */

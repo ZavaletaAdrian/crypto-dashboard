@@ -5,11 +5,13 @@ import { useRatesPolling } from "~/hooks/useRatesPolling";
 import { useOrderedCoins } from "~/hooks/useOrderedCoins";
 import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
 import { usePriceHistory } from "~/hooks/usePriceHistory";
+import { useTheme } from "~/hooks/useTheme";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
 import { RefreshButton } from "~/components/RefreshButton";
 import { FilterInput } from "~/components/FilterInput";
 import { EmptyState } from "~/components/EmptyState";
+import { ThemeToggle } from "~/components/ThemeToggle";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -27,6 +29,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     useRatesPolling(loaderData);
   const { orderedCoins, reorderVisible } = useOrderedCoins(coins);
   const priceHistoryByCode = usePriceHistory(rates);
+  const { theme, mounted: themeMounted, toggleTheme } = useTheme();
   const [filterQuery, setFilterQuery] = useState("");
   const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
@@ -45,6 +48,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               isRefreshing={refreshState === "refreshing"}
               retryAvailableAt={retryAvailableAt}
             />
+            <ThemeToggle theme={theme} mounted={themeMounted} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
