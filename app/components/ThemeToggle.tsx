@@ -11,6 +11,7 @@ function getInitialTheme(): Theme {
     // Storage disabled (e.g. some private-browsing modes) — fall back to matchMedia below.
   }
   if (stored === "light" || stored === "dark") return stored;
+  if (typeof window.matchMedia !== "function") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
@@ -20,9 +21,10 @@ function getInitialTheme(): Theme {
  * itself). This component only needs to know the theme to pick its OWN
  * icon, and it can't know that safely until after mount — reading
  * localStorage/matchMedia during SSR would produce a value the server
- * doesn't have, causing a hydration mismatch on the icon. Rendering a
- * neutral default until mounted, then correcting once, avoids that at the
- * cost of one harmless icon swap on first paint.
+ * doesn't have, causing a hydration mismatch on the icon. Renders the
+ * Moon (light-mode) icon until mounted regardless of the real theme, then
+ * corrects once mounted — a harmless icon swap on first paint rather than
+ * a hydration mismatch.
  */
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
