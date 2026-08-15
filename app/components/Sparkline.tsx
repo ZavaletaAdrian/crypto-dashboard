@@ -25,14 +25,16 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
   const max = Math.max(...values);
   const isFlat = max === min;
   const range = max - min || 1;
-  const stepX = width / (values.length - 1);
-  // Reserve room for the end marker's radius on both edges so a value at the
-  // very top/bottom of the range doesn't clip the circle against the
-  // viewBox — and render a flat series (all equal) as a centered line
-  // instead of pegged to one edge.
+  // Reserve room for the end marker's radius on every edge — top/bottom AND
+  // left/right, since the marker sits at the LAST point, i.e. x = width — so
+  // neither the marker nor the line's stroke clips against the viewBox. Also
+  // renders a flat series (all equal) as a centered line instead of pegged
+  // to one edge.
+  const drawableWidth = width - MARKER_RADIUS * 2;
   const drawableHeight = height - MARKER_RADIUS * 2;
+  const stepX = drawableWidth / (values.length - 1);
   const points = values.map((value, i) => ({
-    x: i * stepX,
+    x: MARKER_RADIUS + i * stepX,
     y: isFlat ? height / 2 : MARKER_RADIUS + drawableHeight - ((value - min) / range) * drawableHeight,
   }));
   const linePath = `M${points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" L")}`;

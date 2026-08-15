@@ -99,9 +99,12 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
                   {formatPercent(change)}
                 </span>
                 {/* Visible, not just a hover title — a tooltip alone isn't reliably
-                    discoverable on touch devices or by assistive tech, and without
-                    it "+2.34%" reads like the 24h change most crypto UIs show. */}
-                <span className="text-[10px] text-gray-400 dark:text-gray-500">this session</span>
+                    discoverable on touch devices or by assistive tech. "recent" (not
+                    "this session") because priceHistory is a bounded rolling window —
+                    older points drop off, so this isn't a full-session change once the
+                    window fills, and it must not be misread as the 24h change most
+                    crypto UIs show. */}
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">recent</span>
               </div>
             )}
           </div>

@@ -20,18 +20,22 @@ describe("Sparkline", () => {
   });
 
   it("renders a flat series (all equal values) as a centered line, not pegged to an edge", () => {
-    const { container } = render(<Sparkline values={[100, 100, 100]} trend="flat" height={24} />);
+    const { container } = render(<Sparkline values={[100, 100, 100]} trend="flat" width={64} height={24} />);
     const path = container.querySelector("path");
     // Every point should be at the vertical center (height / 2), not at the
     // bottom edge where the old (min - min) / range formula would peg it.
-    expect(path?.getAttribute("d")).toBe("M0.00,12.00 L32.00,12.00 L64.00,12.00");
+    // x positions are inset by MARKER_RADIUS (4) on both ends, not 0..width.
+    expect(path?.getAttribute("d")).toBe("M4.00,12.00 L32.00,12.00 L60.00,12.00");
   });
 
-  it("keeps the end marker fully inside the viewBox even at the extremes of the range", () => {
-    const { container } = render(<Sparkline values={[0, 100]} trend="up" height={24} />);
+  it("keeps the end marker fully inside the viewBox on every edge, even at the extremes of the range", () => {
+    const { container } = render(<Sparkline values={[0, 100]} trend="up" width={64} height={24} />);
     const circle = container.querySelector("circle");
+    const cx = Number(circle?.getAttribute("cx"));
     const cy = Number(circle?.getAttribute("cy"));
     const r = Number(circle?.getAttribute("r"));
+    expect(cx - r).toBeGreaterThanOrEqual(0);
+    expect(cx + r).toBeLessThanOrEqual(64);
     expect(cy - r).toBeGreaterThanOrEqual(0);
     expect(cy + r).toBeLessThanOrEqual(24);
   });
