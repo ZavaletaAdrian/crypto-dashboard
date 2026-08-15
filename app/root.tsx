@@ -25,8 +25,11 @@ export const links: Route.LinksFunction = () => [
 
 const THEME_INIT_SCRIPT = `
   (function () {
+    var stored = null;
     try {
-      var stored = localStorage.getItem("theme");
+      stored = localStorage.getItem("theme");
+    } catch (e) {}
+    try {
       var isDark = stored === "dark" || stored === "light"
         ? stored === "dark"
         : matchMedia("(prefers-color-scheme: dark)").matches;
