@@ -4,7 +4,12 @@ import { Moon, Sun } from "lucide-react";
 type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
-  const stored = window.localStorage.getItem("theme");
+  let stored: string | null = null;
+  try {
+    stored = window.localStorage.getItem("theme");
+  } catch {
+    // Storage disabled (e.g. some private-browsing modes) — fall back to matchMedia below.
+  }
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
@@ -31,14 +36,21 @@ export function ThemeToggle() {
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("theme", theme);
+    try {
+      window.localStorage.setItem("theme", theme);
+    } catch {
+      // Storage disabled or quota exceeded — the toggle still works for the
+      // rest of this session via the DOM class, it just won't survive reload.
+    }
   }, [theme, mounted]);
+
+  const label = !mounted ? "Toggle theme" : theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   return (
     <button
       type="button"
       onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-      aria-label={mounted && theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={label}
       className="inline-flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
     >
       {mounted && theme === "dark" ? (
