@@ -4,6 +4,7 @@ import { getRatesPayloadForRead } from "~/services/rates-payload.server";
 import { useRatesPolling } from "~/hooks/useRatesPolling";
 import { useOrderedCoins } from "~/hooks/useOrderedCoins";
 import { useFilteredVisibleCoins } from "~/hooks/useFilteredVisibleCoins";
+import { useTheme } from "~/hooks/useTheme";
 import { CryptoGrid } from "~/components/CryptoGrid";
 import { StalenessBadge } from "~/components/StalenessBadge";
 import { RefreshButton } from "~/components/RefreshButton";
@@ -26,6 +27,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { coins, rates, ageMs, tier, lastError, refresh, refreshState, retryAvailableAt } =
     useRatesPolling(loaderData);
   const { orderedCoins, reorderVisible } = useOrderedCoins(coins);
+  const { theme, mounted: themeMounted, toggleTheme } = useTheme();
   const [filterQuery, setFilterQuery] = useState("");
   const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
@@ -40,7 +42,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             isRefreshing={refreshState === "refreshing"}
             retryAvailableAt={retryAvailableAt}
           />
-          <ThemeToggle />
+          <ThemeToggle theme={theme} mounted={themeMounted} onToggle={toggleTheme} />
         </div>
       </header>
 

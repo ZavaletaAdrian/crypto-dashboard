@@ -16,6 +16,15 @@ body {
   @apply bg-white dark:bg-gray-950;
 }
 
+/* Explicit in both directions — not just html.dark — so UA chrome (form
+   controls, scrollbars) follows the resolved class state even when it
+   disagrees with the OS preference (e.g. user picked light while their OS
+   prefers dark); otherwise color-scheme would stay unset in that case and
+   some UA widgets could still render dark. */
+html {
+  color-scheme: light;
+}
+
 html.dark {
   color-scheme: dark;
 }

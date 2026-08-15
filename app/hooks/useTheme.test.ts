@@ -17,6 +17,19 @@ describe("useTheme", () => {
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
 
+  it("does not persist a system-derived default — only an explicit choice", async () => {
+    // Regression test: a first-time visitor's system-derived theme must not
+    // silently become a permanent stored preference, or future OS-level
+    // theme changes would stop being respected on their next visit.
+    const { result } = renderHook(() => useTheme());
+    await waitFor(() => expect(result.current.mounted).toBe(true));
+
+    expect(window.localStorage.getItem("theme")).toBeNull();
+
+    act(() => result.current.toggleTheme());
+    expect(window.localStorage.getItem("theme")).toBe("dark");
+  });
+
   it("respects a previously stored preference", async () => {
     window.localStorage.setItem("theme", "dark");
     const { result } = renderHook(() => useTheme());

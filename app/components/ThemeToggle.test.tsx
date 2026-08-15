@@ -1,29 +1,33 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeToggle } from "./ThemeToggle";
 
-// Theme persistence/matchMedia-fallback logic is covered by useTheme.test.ts —
-// this only verifies ThemeToggle renders and wires the hook's result correctly.
-
-beforeEach(() => {
-  window.localStorage.clear();
-  document.documentElement.classList.remove("dark");
-});
-
-afterEach(() => {
-  document.documentElement.classList.remove("dark");
-});
+// Theme persistence/matchMedia-fallback logic lives in useTheme and is
+// covered by useTheme.test.ts — this only verifies the presentational
+// component renders the given props correctly and calls onToggle.
 
 describe("ThemeToggle", () => {
-  it("renders the light-mode state and toggles to dark on click", async () => {
-    render(<ThemeToggle />);
+  it("is disabled with a neutral label before mounted", () => {
+    render(<ThemeToggle theme="light" mounted={false} onToggle={() => {}} />);
+    const button = screen.getByLabelText("Toggle theme");
+    expect(button).toBeDisabled();
+  });
 
-    const button = await screen.findByLabelText("Switch to dark mode");
+  it("shows the light-mode state once mounted and calls onToggle on click", () => {
+    const onToggle = vi.fn();
+    render(<ThemeToggle theme="light" mounted onToggle={onToggle} />);
+
+    const button = screen.getByLabelText("Switch to dark mode");
+    expect(button).not.toBeDisabled();
     expect(button).toHaveAttribute("aria-pressed", "false");
 
     fireEvent.click(button);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
 
-    const toggled = await screen.findByLabelText("Switch to light mode");
-    expect(toggled).toHaveAttribute("aria-pressed", "true");
+  it("shows the dark-mode state once mounted", () => {
+    render(<ThemeToggle theme="dark" mounted onToggle={() => {}} />);
+    const button = screen.getByLabelText("Switch to light mode");
+    expect(button).toHaveAttribute("aria-pressed", "true");
   });
 });
