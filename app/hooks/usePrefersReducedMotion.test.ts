@@ -2,6 +2,11 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
+// Reassigning window.matchMedia directly (not vi.spyOn) means
+// vi.restoreAllMocks() won't undo it — save/restore the real one ourselves
+// so a mock from one test can't leak into the next.
+const originalMatchMedia = window.matchMedia;
+
 function mockMatchMedia(matches: boolean) {
   const listeners = new Set<(event: MediaQueryListEvent) => void>();
   const mql = {
@@ -29,7 +34,7 @@ function mockMatchMedia(matches: boolean) {
 
 describe("usePrefersReducedMotion", () => {
   afterEach(() => {
-    vi.restoreAllMocks();
+    window.matchMedia = originalMatchMedia;
   });
 
   it("reflects the OS preference once mounted", async () => {

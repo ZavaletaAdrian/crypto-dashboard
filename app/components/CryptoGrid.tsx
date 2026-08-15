@@ -20,6 +20,10 @@ export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }:
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+  // Read once for the whole grid, not per card — one matchMedia subscription
+  // instead of one per rendered card, which matters once T2's 500+ item case
+  // is in play (see README).
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -46,6 +50,7 @@ export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }:
               coin={coin}
               rate={rates[coin.code]}
               priceHistory={priceHistoryByCode[coin.code] ?? []}
+              prefersReducedMotion={prefersReducedMotion}
             />
           ))}
         </div>
@@ -58,13 +63,13 @@ interface SortableCryptoCardProps {
   coin: Coin;
   rate: CoinRateMap[string];
   priceHistory: number[];
+  prefersReducedMotion: boolean;
 }
 
-function SortableCryptoCard({ coin, rate, priceHistory }: SortableCryptoCardProps) {
+function SortableCryptoCard({ coin, rate, priceHistory, prefersReducedMotion }: SortableCryptoCardProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: coin.code,
   });
-  const prefersReducedMotion = usePrefersReducedMotion();
 
   const style = {
     transform: CSS.Transform.toString(transform),

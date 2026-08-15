@@ -17,8 +17,15 @@ export function usePrefersReducedMotion(): boolean {
     setPrefersReduced(mediaQuery.matches);
 
     const handleChange = (event: MediaQueryListEvent) => setPrefersReduced(event.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+
+    // Safari <14 only has the deprecated addListener/removeListener pair;
+    // addEventListener there either doesn't exist or silently no-ops.
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
   }, []);
 
   return prefersReduced;
