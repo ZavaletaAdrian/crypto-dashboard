@@ -9,10 +9,11 @@ interface CryptoGridProps {
   /** Already the ordered + currently-visible (filtered) subset. */
   coins: Coin[];
   rates: CoinRateMap;
+  priceHistoryByCode?: Partial<Record<string, number[]>>;
   onReorder: (fromIndex: number, toIndex: number, visibleCodes: string[]) => void;
 }
 
-export function CryptoGrid({ coins, rates, onReorder }: CryptoGridProps) {
+export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }: CryptoGridProps) {
   const visibleCodes = coins.map((coin) => coin.code);
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -33,7 +34,12 @@ export function CryptoGrid({ coins, rates, onReorder }: CryptoGridProps) {
       <SortableContext items={visibleCodes} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {coins.map((coin) => (
-            <SortableCryptoCard key={coin.code} coin={coin} rate={rates[coin.code]} />
+            <SortableCryptoCard
+              key={coin.code}
+              coin={coin}
+              rate={rates[coin.code]}
+              priceHistory={priceHistoryByCode[coin.code] ?? []}
+            />
           ))}
         </div>
       </SortableContext>
@@ -44,9 +50,10 @@ export function CryptoGrid({ coins, rates, onReorder }: CryptoGridProps) {
 interface SortableCryptoCardProps {
   coin: Coin;
   rate: CoinRateMap[string];
+  priceHistory: number[];
 }
 
-function SortableCryptoCard({ coin, rate }: SortableCryptoCardProps) {
+function SortableCryptoCard({ coin, rate, priceHistory }: SortableCryptoCardProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: coin.code,
   });
@@ -59,7 +66,12 @@ function SortableCryptoCard({ coin, rate }: SortableCryptoCardProps) {
 
   return (
     <div ref={setNodeRef} style={style} data-testid={`sortable-item-${coin.code}`}>
-      <CryptoCard coin={coin} rate={rate} dragHandleProps={{ ref: setActivatorNodeRef, ...attributes, ...listeners }} />
+      <CryptoCard
+        coin={coin}
+        rate={rate}
+        priceHistory={priceHistory}
+        dragHandleProps={{ ref: setActivatorNodeRef, ...attributes, ...listeners }}
+      />
     </div>
   );
 }
