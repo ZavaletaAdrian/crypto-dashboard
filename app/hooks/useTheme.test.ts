@@ -56,4 +56,21 @@ describe("useTheme", () => {
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(window.localStorage.getItem("theme")).toBe("light");
   });
+
+  it("applies two rapid toggles correctly even before a re-render commits between them", async () => {
+    // Regression test: toggleTheme must derive "next" from the live DOM
+    // class, not the closed-over theme state — otherwise two calls queued
+    // in the same tick would both read the same stale value and compute
+    // the same "next", silently cancelling one of the toggles out.
+    const { result } = renderHook(() => useTheme());
+    await waitFor(() => expect(result.current.mounted).toBe(true));
+
+    act(() => {
+      result.current.toggleTheme();
+      result.current.toggleTheme();
+    });
+
+    expect(result.current.theme).toBe("light");
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+  });
 });

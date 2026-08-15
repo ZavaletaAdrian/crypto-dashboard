@@ -63,16 +63,22 @@ export function useTheme(): UseThemeResult {
   // handler (not a separate effect) — an effect-based write can race with
   // an immediate reload/navigation right after the click, briefly leaving
   // the icon (React state) desynced from the actual page theme (DOM class)
-  // until the effect runs. Depends on `theme` (not an empty array) so it
-  // always reads the current value rather than a stale one from an earlier
-  // render — matching useOrderedCoins' same-tick-write pattern for T3.
+  // until the effect runs.
+  //
+  // Derives `next` from the live DOM class rather than the closed-over
+  // `theme` state: two clicks queued before React commits a re-render would
+  // otherwise both read the same stale `theme` value and compute the same
+  // `next`, silently cancelling one of the toggles out. The DOM class is
+  // mutated synchronously within this same handler, so it's already correct
+  // by the time a second rapid click re-enters — no dependency on React's
+  // render cycle at all, so toggleTheme can stay referentially stable too.
   const toggleTheme = useCallback(() => {
-    const next: Theme = theme === "dark" ? "light" : "dark";
+    const next: Theme = document.documentElement.classList.contains("dark") ? "light" : "dark";
     hasExplicitChoice.current = true;
     document.documentElement.classList.toggle("dark", next === "dark");
     persistTheme(next);
     setTheme(next);
-  }, [theme]);
+  }, []);
 
   return { theme, mounted, toggleTheme };
 }
