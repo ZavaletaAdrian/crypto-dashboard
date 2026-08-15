@@ -40,7 +40,7 @@ app/
     api.rates.ts               # GET = cheap cache read, POST = manual refresh (shares the T1 budget)
   services/                    # *.server.ts — excluded from the client bundle
     coinbase.server.ts         # thin Coinbase API client
-    rate-cache.server.ts       # T1/T4 engine: token bucket, proactive loop, staleness
+    rate-cache.server.ts       # T1/T4 engine: token bucket, reactive freshness check, staleness
     coin-catalog.server.ts     # joins the curated coin list with live Coinbase names
     rates-payload.server.ts    # shared wire-payload builder for the loader and the API route
   data/
@@ -51,7 +51,7 @@ app/
   types/                          # shared wire/domain types (coin.ts, rates.ts)
 ```
 
-**Data flow:** Coinbase → `coinbase.server.ts` → `rate-cache.server.ts` (the *only* thing allowed to call Coinbase; owns the token bucket) → `api.rates.ts` (serves the cache to clients, free reads) + the home route's own loader (SSR first paint) → `useRatesPolling` (polls the free internal route) → React state → re-render. No matter how many browser tabs are open, only the server's proactive loop or a manual-refresh request that wins a token ever calls Coinbase — tabs never call it directly, which is what makes the shared 10/min budget hold across tabs automatically.
+**Data flow:** Coinbase → `coinbase.server.ts` → `rate-cache.server.ts` (the *only* thing allowed to call Coinbase; owns the token bucket) → `api.rates.ts` (serves the cache to clients, free reads) + the home route's own loader (SSR first paint) → `useRatesPolling` (polls the free internal route) → React state → re-render. No matter how many browser tabs are open, only a read that decides the cache is stale enough (`ensureFresh`) or a manual-refresh request that wins a token ever calls Coinbase — tabs never call it directly, which is what makes the shared 10/min budget hold across tabs automatically.
 
 **The math that makes T1 work at all:** `GET /v2/exchange-rates?currency=USD` returns, in one call, `rates[code]` = *units of code per 1 USD* for every currency Coinbase knows about, BTC included. So:
 
@@ -68,11 +68,13 @@ The assignment names five tensions with no single correct resolution. **T1, T3, 
 
 **Requirement:** rates must never be staler than 10s while the dashboard is open, but the app is capped at 10 Coinbase requests/minute total, shared across every open tab, including manual refresh.
 
-**Decision:** a single server-side token bucket (`app/services/rate-cache.server.ts`, capacity 10, continuous refill — 1 token every 6s) gates every real Coinbase call. A proactive background loop refreshes the cache once it's older than 8s, *if* a client has polled within the last 30s (no point spending budget on a tab nobody's watching). Manual refresh draws from the **exact same bucket** — there is no separate quota — and if a fetch is already in flight (background or another manual click), a new request piggybacks on it instead of spending a second token for a call that wouldn't happen anyway.
+**Decision:** a single server-side token bucket (`app/services/rate-cache.server.ts`, capacity 10, continuous refill — 1 token every 6s) gates every real Coinbase call. Freshness is checked **reactively on every read** (`ensureFresh`, called from both the home route's loader and `GET /api/rates`): if the cache is older than 8s, that request itself attempts a refresh (if a token is available), rather than a background process refreshing on its own schedule. Manual refresh draws from the **exact same bucket** — there is no separate quota — and if a fetch is already in flight, a new request piggybacks on it instead of spending a second token for a call that wouldn't happen anyway.
 
-**What this buys:** worst-case staleness is bounded by the 8s proactive cadence plus the ~2.5s client poll interval — under the 10s requirement with margin — while leaving 2-3 tokens/min of headroom for manual refreshes. Browser tabs never call Coinbase directly; they poll the app's own `/api/rates` route, which is a free in-memory read. That's the property that makes "any number of tabs" a non-issue: tab count only affects cheap internal reads, never the constrained upstream call.
+**What this buys:** worst-case staleness is bounded by the 8s freshness threshold plus the ~2.5s client poll interval that drives reads — under the 10s requirement with margin — while leaving 2-3 tokens/min of headroom for manual refreshes. Browser tabs never call Coinbase directly; they poll the app's own `/api/rates` route, which is a free in-memory read (that itself may or may not trigger the one server-side call to Coinbase, depending on cache age). That's the property that makes "any number of tabs" a non-issue: tab count only affects cheap internal reads, never the constrained upstream call.
 
-**What was given up / documented limitation:** the token bucket is a single in-process singleton. It only holds "10/min total" for a single server instance — horizontally scaling this app would need a shared store (Redis-backed token bucket) to keep the ceiling true across instances. Out of scope here; called out rather than silently ignored.
+**A real bug this reactive design fixes:** the first version of this cache used a self-rescheduling `setTimeout` loop instead — a background process that woke itself up every ~8s to check freshness independently of any client request. That worked in local dev (`npm run dev`/`npm start` run as one long-lived Node process) but broke in production on Vercel: serverless platforms freeze a function's event loop between invocations, so a timer scheduled during one request simply never fires again once that request's response is sent — the cache got stuck stale indefinitely (observed live: "Stale — 6m ago" that never recovered). Moving the freshness check onto the read path itself — "is the cache stale enough as of *this* request?" — has no dependency on a persistent process at all, and turned out to be a simpler design besides: one fewer moving part (no timer/backoff-schedule bookkeeping), with retry pacing still fully governed by the token bucket alone.
+
+**What was given up / documented limitation:** the token bucket is a single in-process singleton. It only holds "10/min total" per warm server instance — on Vercel that means per warm serverless instance, not globally, and horizontally scaling this app for real would need a shared store (Redis-backed token bucket) to keep the ceiling true across instances. Out of scope here; called out rather than silently ignored.
 
 ### T2 — Scale vs. interactivity — 📝 documented, descoped
 
@@ -108,11 +110,11 @@ The assignment names five tensions with no single correct resolution. **T1, T3, 
 | Stale | > 60s | red badge + banner, "Stale — last updated Xm ago"; numbers stay visible |
 | Never fetched | no successful fetch yet | gray "Loading…" badge, or red "Unavailable" once a fetch attempt has actually failed |
 
-60s is the stale threshold because, under normal operation (8s proactive cadence with headroom), the gap never approaches 60s from routine budget pressure alone — crossing it is a real signal that something is actually wrong, not a false positive on ordinary variance.
+60s is the stale threshold because, under normal operation (8s freshness threshold with headroom), the gap never approaches 60s from routine budget pressure alone — crossing it is a real signal that something is actually wrong, not a false positive on ordinary variance.
 
 **First-time visitor with the API down (verified live, not just unit-tested):** the dashboard shell renders using the local `top-coins.ts` allowlist for coin identity — no network required — with rate fields showing `—` and an inline (not full-page) banner: *"Live rates are temporarily unavailable — showing the coin list only. Reconnecting automatically."* Filtering and drag-and-drop both keep working immediately, even with zero price data. This was confirmed by pointing `coinbase.server.ts` at an unreachable host and loading a cold cache — the header badge initially said "Loading…" even with a persistent failure, which read as misleading next to a banner that correctly said otherwise, so the badge now distinguishes "still loading" from "actually failed" (`hasError`).
 
-Server-side: a single in-flight-fetch guard means simultaneous cold-start requests from multiple tabs share one fetch rather than each triggering their own; a 5s `AbortController` timeout bounds the worst case; failures back off the proactive loop's cadence (8s → 60s cap) rather than hammering a downed API.
+Server-side: a single in-flight-fetch guard means simultaneous cold-start requests from multiple tabs share one fetch rather than each triggering their own; a 5s `AbortController` timeout bounds the worst case. There's no separate failure-backoff schedule to reason about — since freshness checks happen reactively per request rather than on an independent timer, the token bucket alone naturally paces retries during an outage (a failed attempt still spends its token; the next real attempt waits for the bucket to refill).
 
 **What was given up:** the cache is in-memory per server process — it does not survive a restart/redeploy. Acceptable for this scope; a production deployment with multiple instances or frequent redeploys would want an external cache.
 
