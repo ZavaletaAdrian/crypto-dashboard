@@ -42,7 +42,7 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 400
 rounded:
-  sm: "0.375rem"
+  sm: "0.25rem"
   md: "0.5rem"
   lg: "0.75rem"
   full: "9999px"
@@ -188,12 +188,12 @@ Flat by default, everywhere, with exactly one exception: cards carry a barely-th
 
 ## Shapes
 
-Three radius steps cover the whole system, scaling roughly with a component's size: small controls (the card's drag-handle button) use a tight 6px (`rounded`), everyday interactive controls (buttons, the filter input) use 8px (`rounded-lg`), and cards and the empty-state container use a more generous 12px (`rounded-xl`) — cards are meant to read as distinct, well-formed objects, not just bordered boxes. Fully round (`rounded-full`, 9999px) is reserved for anything meant to read as a pill or a dot: badges, the small coin-logo avatar, and the staleness badge's tiny status dot. Borders are uniformly 1px hairlines; the only non-solid border in the system is the empty state's dashed border, which exists specifically to signal "nothing here yet" rather than "something is wrong."
+Three radius steps cover the whole system, scaling roughly with a component's size: small controls (the card's drag-handle button) use a tight 4px (`rounded`), everyday interactive controls (buttons, the filter input) use 8px (`rounded-lg`), and cards and the empty-state container use a more generous 12px (`rounded-xl`) — cards are meant to read as distinct, well-formed objects, not just bordered boxes. Fully round (`rounded-full`, 9999px) is reserved for anything meant to read as a pill or a dot: badges, the small coin-logo avatar, and the staleness badge's tiny status dot. Borders are uniformly 1px hairlines; the only non-solid border in the system is the empty state's dashed border, which exists specifically to signal "nothing here yet" rather than "something is wrong."
 
 ## Components
 
 ### Buttons
-- **Shape:** 8px radius (`rounded-lg`) for both the labeled Refresh button and the icon-only theme toggle; the card's drag-handle icon button uses the tighter 6px (`rounded`) since it is scaled to sit inside the card's own corner.
+- **Shape:** 8px radius (`rounded-lg`) for both the labeled Refresh button and the icon-only theme toggle; the card's drag-handle icon button uses the tighter 4px (`rounded`) since it is scaled to sit inside the card's own corner.
 - **Ghost/ Ideal (the only variant that exists):** transparent background, 1px `border-control` border, `ink-control` text, `surface-recessed` background on hover. There is no filled/primary button anywhere in this system — every button is an outline/ghost control, matching the "chrome recedes" brief.
 - **Disabled:** 50% opacity, `cursor: not-allowed` — used while a refresh is in flight or the rate-limit budget forces a cooldown ("Retry in Ns").
 - **Icon-only variants** (theme toggle, drag handle): no visible border in the card's drag-handle case (it only reveals its hover background on interaction); the header's theme toggle keeps its border for consistency with the Refresh button beside it.
@@ -226,7 +226,7 @@ A 64×24px inline SVG trend indicator, unique to this system: the line itself is
 ### Do:
 - **Do** treat every color as a state signal, not decoration — before adding any new hue, ask what state it represents.
 - **Do** pair every status or trend color with a non-color cue (an icon, a visible label, or both) — color alone never carries meaning anywhere in this system.
-- **Do** keep the drag/trend/staleness signal colors flowing through a single shared source of trute (`STATUS_COLOR_HEX` in code) rather than redefining them per component, so they cannot drift apart.
+- **Do** keep the drag/trend/staleness signal colors flowing through a single shared source of truth (`STATUS_COLOR_HEX` in code) rather than redefining them per component, so they cannot drift apart.
 - **Do** apply signal colors via inline style/CSS variables, never a Tailwind class built from a runtime constant.
 - **Do** keep the page title and a card's headline price at the same type size and weight — neither should ever out-rank the other.
 
