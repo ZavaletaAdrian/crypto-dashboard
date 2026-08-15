@@ -28,3 +28,11 @@ html {
 html.dark {
   color-scheme: dark;
 }
+
+/* Deliberately no @media (prefers-color-scheme) fallback for when JS is
+   blocked/disabled: doing that correctly (respecting an explicit light
+   choice even when the OS prefers dark) needs a second marker class kept in
+   permanent sync with .dark, purely for a scenario — no JS at all — where
+   this app has no working functionality regardless (filtering, drag-and-
+   drop, and live polling all require it). Accepted as an out-of-scope edge
+   case rather than adding that bookkeeping for a still-broken experience. */
