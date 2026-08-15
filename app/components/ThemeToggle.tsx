@@ -1,58 +1,16 @@
-import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "~/hooks/useTheme";
 
-type Theme = "light" | "dark";
-
-function getInitialTheme(): Theme {
-  let stored: string | null = null;
-  try {
-    stored = window.localStorage.getItem("theme");
-  } catch {
-    // Storage disabled (e.g. some private-browsing modes) — fall back to matchMedia below.
-  }
-  if (stored === "light" || stored === "dark") return stored;
-  if (typeof window.matchMedia !== "function") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-/**
- * The actual page theme is already set before first paint by the blocking
- * inline script in root.tsx (no flash of the wrong theme for the page
- * itself). This component only needs to know the theme to pick its OWN
- * icon, and it can't know that safely until after mount — reading
- * localStorage/matchMedia during SSR would produce a value the server
- * doesn't have, causing a hydration mismatch on the icon. Renders the
- * Moon (light-mode) icon until mounted regardless of the real theme, then
- * corrects once mounted — a harmless icon swap on first paint rather than
- * a hydration mismatch.
- */
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setTheme(getInitialTheme());
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    try {
-      window.localStorage.setItem("theme", theme);
-    } catch {
-      // Storage disabled or quota exceeded — the toggle still works for the
-      // rest of this session via the DOM class, it just won't survive reload.
-    }
-  }, [theme, mounted]);
-
+  const { theme, mounted, toggleTheme } = useTheme();
   const label = !mounted ? "Toggle theme" : theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   return (
     <button
       type="button"
-      onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+      onClick={toggleTheme}
       aria-label={label}
+      aria-pressed={mounted ? theme === "dark" : undefined}
       className="inline-flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
     >
       {mounted && theme === "dark" ? (
