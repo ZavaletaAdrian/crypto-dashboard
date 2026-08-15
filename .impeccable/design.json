@@ -57,7 +57,7 @@
       "refersTo": "button-ghost",
       "description": "The only button style in the system — an outline/ghost control used for Refresh and other labeled actions.",
       "html": "<button class=\"ds-btn-ghost\">Refresh</button>",
-      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-ghost:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Icon Button",
@@ -65,7 +65,7 @@
       "refersTo": "icon-button",
       "description": "Icon-only control used for the theme toggle.",
       "html": "<button class=\"ds-btn-icon\" aria-label=\"Toggle theme\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/></svg></button>",
-      "css": ".ds-btn-icon { background: transparent; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-btn-icon { background: transparent; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-icon:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Drag Handle",
@@ -73,7 +73,7 @@
       "refersTo": "drag-handle",
       "description": "Icon-only grab affordance on each card, borderless at rest. Padding was grown from 4px to 10px (24x24 -> 36x36 hit area) after an accessibility audit found it under the practical 44x44 touch-target minimum for the app's sole drag-and-drop grab point.",
       "html": "<button class=\"ds-drag-handle\" aria-label=\"Reorder Bitcoin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"6\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"18\" r=\"1\"/><circle cx=\"15\" cy=\"6\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"18\" r=\"1\"/></svg></button>",
-      "css": ".ds-drag-handle { background: transparent; color: #9ca3af; border: none; border-radius: 0.25rem; padding: 10px; touch-action: none; } .ds-drag-handle:hover { background: #f3f4f6; color: #4b5563; } .ds-drag-handle:focus-visible { outline: 2px solid #111827; outline-offset: 2px; }"
+      "css": ".ds-drag-handle { background: transparent; color: #9ca3af; border: none; border-radius: 0.25rem; padding: 10px; touch-action: none; } .ds-drag-handle:hover { background: #f3f4f6; color: #4b5563; } .ds-drag-handle:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-drag-handle:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Crypto Card",
@@ -97,7 +97,7 @@
       "refersTo": "input-filter",
       "description": "The page's single text filter, with a leading search icon.",
       "html": "<div class=\"ds-input-wrap\"><svg class=\"ds-input-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-input-filter\" placeholder=\"Filter by name or symbol…\" /></div>",
-      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #111827; } .ds-input-filter::placeholder { color: #9ca3af; } .ds-input-filter:focus { border-color: #9ca3af; } .ds-input-filter:focus-visible { outline: 2px solid #111827; outline-offset: 2px; }"
+      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #111827; } .ds-input-filter::placeholder { color: #9ca3af; } .ds-input-filter:focus { border-color: #9ca3af; } .ds-input-filter:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-input-filter:focus-visible { outline-color: #f3f4f6; }"
     },
     {
       "name": "Trend Sparkline",

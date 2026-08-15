@@ -132,7 +132,7 @@ Density stays comfortable rather than tight: cards get real breathing room (16px
 Almost the entire palette is a neutral gray ramp; the only hues that exist are three fixed "signal" colors and a matching set of pastel/dark badge pairs used exclusively for the four data-freshness states. There is no primary or secondary brand color to speak of — this system deliberately has no accent.
 
 ### Primary (functional signal, not brand)
-Each signal color is tuned independently per theme — not a single hex serving both — because the same value can't clear 4.5:1 against a white card *and* a near-black one. Resolved via CSS custom properties (`--status-good`/`--status-critical`/`--status-muted` in `app.css`, consumed through `STATUS_COLOR` in `statusPalette.ts`), never a fixed value baked into a component.
+Each signal color is tuned independently per theme — not a single hex serving both — because the same value can't clear 4.5:1 against a white card *and* a near-black one. Resolved via CSS custom properties (`--status-good`/`--status-critical`/`--status-muted` in `app/app.css`, consumed through `STATUS_COLOR` in `app/data/statusPalette.ts`), never a fixed value baked into a component.
 - **Market Green** — light `#15803d` / dark `#0ca30c`: the sole "positive" hue in the system. Used only for an upward price-trend sparkline dot and its delta-chip icon/text — never for anything decorative or brand-related.
 - **Market Red** — light `#d03b3b` / dark `#ef4444`: the sole "negative" hue. Used only for a downward price-trend sparkline dot and its delta-chip icon/text.
 - **Neutral Gray** — light `#676561` / dark `#898781`: the "flat/no change" trend signal — a distinct warm-gray, deliberately not reused from the UI's own neutral ramp, so a flat trend still reads as an intentional state rather than "uncolored."
@@ -230,7 +230,7 @@ Three radius steps cover the whole system, scaling roughly with a component's si
 - **Error / Disabled:** not applicable — this input has no validation state.
 
 ### Sparkline (signature component)
-A 64×24px inline SVG trend indicator, unique to this system: the line itself is always drawn in `neutral-gray` regardless of trend direction, and only the single dot marking the most recent value is colored (`market-green`/`market-red`/`neutral-gray`) by trend. This is deliberate — a sparkline whose entire line changes color by direction reads as noisier and harder to place next to the delta chip's own trend color; keeping the line neutral and letting one dot carry the color keeps the "color = state, nothing else" rule intact even inside a chart.
+A 64×24px inline SVG trend indicator, unique to this system: the line itself is always drawn in the muted signal color (`STATUS_COLOR.muted`, i.e. Neutral Gray) regardless of trend direction, and only the single dot marking the most recent value is colored by trend (`STATUS_COLOR.good`/`.critical`/`.muted` — Market Green/Red/Neutral Gray, each resolved per-theme). This is deliberate — a sparkline whose entire line changes color by direction reads as noisier and harder to place next to the delta chip's own trend color; keeping the line neutral and letting one dot carry the color keeps the "color = state, nothing else" rule intact even inside a chart.
 
 ### Named Rules
 **The Muted-Line Rule.** A trend sparkline's line is always the neutral/muted hue; only its terminal point ever takes the signal color. No sparkline line is ever colored by direction across its full length.
