@@ -8,11 +8,9 @@ export interface RateCacheOptions {
   now?: () => number;
   capacity?: number;
   refillIntervalMs?: number;
-  backgroundIntervalMs?: number;
-  idleTimeoutMs?: number;
+  /** How old the cache may get before a read triggers a refresh attempt. */
+  freshIntervalMs?: number;
   manualGuardMs?: number;
-  /** Set false in tests to drive the loop manually via the returned `_tick`. */
-  autoStart?: boolean;
 }
 
 export interface RatesSnapshot {
@@ -58,19 +56,15 @@ export function createRateCache(options: RateCacheOptions) {
   const now = options.now ?? Date.now;
   const capacity = options.capacity ?? 10;
   const refillIntervalMs = options.refillIntervalMs ?? 6000;
-  const backgroundIntervalMs = options.backgroundIntervalMs ?? 8000;
-  const idleTimeoutMs = options.idleTimeoutMs ?? 30_000;
+  const freshIntervalMs = options.freshIntervalMs ?? 8000;
   const manualGuardMs = options.manualGuardMs ?? 2000;
 
   const bucket = new TokenBucket({ capacity, refillIntervalMs, now });
 
   let ratesByCode: CoinRateMap = {};
   let fetchedAt: number | null = null;
-  let consecutiveFailures = 0;
   let lastError: string | null = null;
-  let lastPolledAt = now();
   let inflight: Promise<boolean> | null = null;
-  let timer: ReturnType<typeof setTimeout> | null = null;
 
   /** Resolves to whether the fetch actually succeeded, so callers waiting on
    *  an in-flight fetch (rather than starting their own) can tell success
@@ -82,11 +76,9 @@ export function createRateCache(options: RateCacheOptions) {
         const data = await options.fetchRates();
         ratesByCode = toCoinRates(data.rates);
         fetchedAt = now();
-        consecutiveFailures = 0;
         lastError = null;
         return true;
       } catch (err) {
-        consecutiveFailures += 1;
         lastError = err instanceof Error ? err.message : "Unknown error";
         return false;
       } finally {
@@ -96,45 +88,21 @@ export function createRateCache(options: RateCacheOptions) {
     return inflight;
   }
 
-  function backoffMs(): number {
-    if (consecutiveFailures === 0) return backgroundIntervalMs;
-    return Math.min(60_000, backgroundIntervalMs * 2 ** consecutiveFailures);
-  }
-
-  function scheduleNext(delayMs: number): void {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => void tick(), delayMs);
-    if (typeof timer.unref === "function") timer.unref();
-  }
-
-  /** One iteration of the proactive background refresh loop. Exposed as `_tick` for tests. */
-  async function tick(): Promise<void> {
-    const isIdle = now() - lastPolledAt > idleTimeoutMs;
-    if (!isIdle && !inflight) {
-      const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
-      if (age >= backgroundIntervalMs && bucket.tryConsume(now())) {
-        await doFetch();
-      }
-    }
-    scheduleNext(backoffMs());
-  }
-
-  function start(): void {
-    if (timer === null) scheduleNext(0);
-  }
-
-  function stop(): void {
-    if (timer) clearTimeout(timer);
-    timer = null;
-  }
-
-  function markPolled(): void {
-    lastPolledAt = now();
-  }
-
-  /** Blocking bootstrap fetch for a cold cache, called from the loader so first paint has data. */
-  async function ensureBootstrap(): Promise<void> {
-    if (fetchedAt !== null) return;
+  /**
+   * Called on every read (the home route's loader and GET /api/rates) —
+   * there is deliberately no background timer. This app deploys to Vercel,
+   * where each request can run in a separate serverless invocation and the
+   * JS event loop freezes between them: a self-rescheduling setTimeout loop
+   * (the original design) simply stops ticking once the initiating
+   * request's response is sent, and the cache gets stuck stale forever.
+   * Checking freshness reactively on every read works regardless of
+   * hosting model, and ties refresh cadence directly to actual client
+   * polling (~2.5s) rather than an independent schedule that can drift out
+   * of sync with real demand.
+   */
+  async function ensureFresh(): Promise<void> {
+    const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
+    if (age < freshIntervalMs) return;
     if (inflight) {
       await inflight;
       return;
@@ -142,6 +110,8 @@ export function createRateCache(options: RateCacheOptions) {
     if (bucket.tryConsume(now())) {
       await doFetch();
     }
+    // No token available: proceed with the existing (possibly stale) cache
+    // — the staleness tier in getSnapshot() communicates this to the UI.
   }
 
   function getSnapshot(): RatesSnapshot {
@@ -156,10 +126,10 @@ export function createRateCache(options: RateCacheOptions) {
   }
 
   /**
-   * Draws from the exact same bucket as the background loop — no separate
-   * manual quota. If a fetch is already in flight (e.g. the background loop
-   * just started one), piggyback on it instead of consuming a second token
-   * for a request that wouldn't trigger any new Coinbase call anyway.
+   * Draws from the exact same bucket as ensureFresh — no separate manual
+   * quota. If a fetch is already in flight, piggyback on it instead of
+   * consuming a second token for a request that wouldn't trigger any new
+   * Coinbase call anyway.
    */
   async function requestManualRefresh(): Promise<ManualRefreshResult> {
     const age = fetchedAt !== null ? now() - fetchedAt : Number.POSITIVE_INFINITY;
@@ -179,16 +149,11 @@ export function createRateCache(options: RateCacheOptions) {
     return bucket.snapshot(now());
   }
 
-  if (options.autoStart !== false) start();
-
   return {
-    markPolled,
-    ensureBootstrap,
+    ensureFresh,
     getSnapshot,
     requestManualRefresh,
     getDebugBudget,
-    stop,
-    _tick: tick,
   };
 }
 
@@ -198,6 +163,10 @@ declare global {
   var __rateCache: RateCache | undefined;
 }
 
-/** Single in-memory instance for this server process (see README's T1 limitation note). */
+/**
+ * Single in-memory instance per warm process/instance. On Vercel this means
+ * per warm serverless instance, not globally — see the README's T1
+ * limitation note on horizontal scaling.
+ */
 export const rateCache: RateCache =
   globalThis.__rateCache ?? (globalThis.__rateCache = createRateCache({ fetchRates: fetchExchangeRates }));
