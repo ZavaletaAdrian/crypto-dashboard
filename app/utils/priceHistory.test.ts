@@ -34,6 +34,18 @@ describe("percentChange", () => {
   it("returns null rather than dividing by zero when the first point is 0", () => {
     expect(percentChange([0, 5])).toBeNull();
   });
+
+  it("returns null instead of NaN% when the last point is non-finite", () => {
+    expect(percentChange([100, Number.NaN])).toBeNull();
+  });
+
+  it("rounds to 2 decimals so trendDirection's up/down classification matches what's displayed", () => {
+    // An unrounded change here is a tiny positive fraction that displays as
+    // "0.00%" — it must round to exactly 0, not a misleading near-zero "up".
+    const change = percentChange([100, 100.00001]);
+    expect(change).toBe(0);
+    expect(trendDirection(change)).toBe("flat");
+  });
 });
 
 describe("trendDirection", () => {

@@ -1,3 +1,4 @@
+import { STATUS_COLOR_HEX } from "~/data/statusPalette";
 import type { Trend } from "~/utils/priceHistory";
 
 interface SparklineProps {
@@ -7,16 +8,11 @@ interface SparklineProps {
   height?: number;
 }
 
-// Status palette (fixed, never themed — see dataviz skill's palette.md).
-const GOOD = "#0ca30c";
-const CRITICAL = "#d03b3b";
-const MUTED = "#898781";
-
 /**
- * A 12-ish point trend sparkline: the line itself stays in the de-emphasis
- * (muted) hue, with only the current/latest point picked out in the status
- * accent color (good/critical) — per the stat-tile "trend" spec, not a
- * rainbow-by-direction line.
+ * A trend sparkline over however many points it's given (bounded upstream by
+ * MAX_HISTORY_POINTS): the line itself stays in the de-emphasis (muted) hue,
+ * with only the current/latest point picked out in the status accent color
+ * (good/critical) — per the stat-tile "trend" spec, not a rainbow-by-direction line.
  */
 export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineProps) {
   if (values.length < 2) {
@@ -33,7 +29,8 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
   }));
   const linePath = `M${points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" L")}`;
   const last = points[points.length - 1];
-  const accent = trend === "up" ? GOOD : trend === "down" ? CRITICAL : MUTED;
+  const accent =
+    trend === "up" ? STATUS_COLOR_HEX.good : trend === "down" ? STATUS_COLOR_HEX.critical : STATUS_COLOR_HEX.muted;
 
   return (
     <svg
@@ -43,7 +40,14 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
       role="img"
       aria-label={`Recent price trend: ${trend}`}
     >
-      <path d={linePath} fill="none" stroke={MUTED} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      <path
+        d={linePath}
+        fill="none"
+        stroke={STATUS_COLOR_HEX.muted}
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
       <circle cx={last.x} cy={last.y} r={4} fill={accent} />
     </svg>
   );

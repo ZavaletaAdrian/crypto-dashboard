@@ -1,8 +1,9 @@
 import { memo, type ComponentProps } from "react";
 import { GripVertical, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Sparkline } from "./Sparkline";
-import { percentChange, trendDirection } from "~/utils/priceHistory";
+import { percentChange, trendDirection, type Trend } from "~/utils/priceHistory";
 import { COIN_ICON_URLS } from "~/data/coinIcons";
+import { STATUS_COLOR_HEX } from "~/data/statusPalette";
 import type { Coin, CoinRate } from "~/types/coin";
 
 interface CryptoCardProps {
@@ -31,14 +32,17 @@ function formatPercent(value: number): string {
   return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 
-// Status palette (fixed, never themed — matches Sparkline's accent colors).
-const TREND_TEXT_STYLES = {
-  up: "text-[#0ca30c]",
-  down: "text-[#d03b3b]",
-  flat: "text-gray-400 dark:text-gray-500",
-};
-
 const TREND_ICONS = { up: TrendingUp, down: TrendingDown, flat: Minus };
+
+// Inline style (not a Tailwind class) so this shares one source of truth
+// with Sparkline's SVG colors via STATUS_COLOR_HEX — a Tailwind arbitrary
+// class built from an imported constant (e.g. `text-[${hex}]`) wouldn't be
+// picked up by Tailwind's static source scan and would silently not apply.
+function trendColor(trend: Trend): string {
+  if (trend === "up") return STATUS_COLOR_HEX.good;
+  if (trend === "down") return STATUS_COLOR_HEX.critical;
+  return STATUS_COLOR_HEX.muted;
+}
 
 function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCardProps) {
   const iconUrl = COIN_ICON_URLS[coin.code];
@@ -87,7 +91,10 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
             <Sparkline values={priceHistory} trend={trend} />
             {change !== null && (
               <div className="flex flex-col items-end">
-                <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${TREND_TEXT_STYLES[trend]}`}>
+                <span
+                  className="inline-flex items-center gap-0.5 text-xs font-medium"
+                  style={{ color: trendColor(trend) }}
+                >
                   <TrendIcon className="h-3 w-3" aria-hidden="true" />
                   {formatPercent(change)}
                 </span>

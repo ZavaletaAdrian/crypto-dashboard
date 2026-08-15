@@ -21,7 +21,7 @@ import usdt from "cryptocurrency-icons/svg/color/usdt.svg";
 import xlm from "cryptocurrency-icons/svg/color/xlm.svg";
 import xrp from "cryptocurrency-icons/svg/color/xrp.svg";
 
-export const COIN_ICON_URLS: Record<string, string> = {
+export const COIN_ICON_URLS: Partial<Record<string, string>> = {
   ADA: ada,
   ATOM: atom,
   AVAX: avax,
