@@ -30,7 +30,13 @@ export function CryptoGrid({ coins, rates, priceHistoryByCode = {}, onReorder }:
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    // A stable `id` makes dnd-kit's internal `useUniqueId` return it verbatim
+    // instead of falling back to a module-level counter — that counter can
+    // reach a different value on the server render vs. the client's first
+    // render (order/count of other useUniqueId consumers isn't guaranteed to
+    // match), which produced a real hydration mismatch on every card's
+    // `aria-describedby` (caught via the impeccable audit + browser console).
+    <DndContext id="crypto-grid" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={visibleCodes} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {coins.map((coin) => (

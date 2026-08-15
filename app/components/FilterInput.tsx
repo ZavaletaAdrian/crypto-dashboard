@@ -18,7 +18,7 @@ export function FilterInput({ value, onChange }: FilterInputProps) {
         onChange={(event) => onChange(event.target.value)}
         placeholder="Filter by name or symbol…"
         aria-label="Filter cryptocurrencies"
-        className="w-full rounded-lg border border-gray-300 py-1.5 pr-3 pl-9 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        className="w-full rounded-lg border border-gray-300 py-1.5 pr-3 pl-9 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus-visible:outline-gray-100"
       />
     </div>
   );

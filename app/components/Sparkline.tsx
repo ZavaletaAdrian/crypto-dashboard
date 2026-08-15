@@ -1,4 +1,4 @@
-import { STATUS_COLOR_HEX } from "~/data/statusPalette";
+import { STATUS_COLOR } from "~/data/statusPalette";
 import type { Trend } from "~/utils/priceHistory";
 
 interface SparklineProps {
@@ -39,8 +39,7 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
   }));
   const linePath = `M${points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" L")}`;
   const last = points[points.length - 1];
-  const accent =
-    trend === "up" ? STATUS_COLOR_HEX.good : trend === "down" ? STATUS_COLOR_HEX.critical : STATUS_COLOR_HEX.muted;
+  const accent = trend === "up" ? STATUS_COLOR.good : trend === "down" ? STATUS_COLOR.critical : STATUS_COLOR.muted;
 
   return (
     <svg
@@ -53,12 +52,12 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
       <path
         d={linePath}
         fill="none"
-        stroke={STATUS_COLOR_HEX.muted}
+        style={{ stroke: STATUS_COLOR.muted }}
         strokeWidth={2}
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} fill={accent} />
+      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} style={{ fill: accent }} />
     </svg>
   );
 }
