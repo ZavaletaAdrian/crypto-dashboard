@@ -3,6 +3,7 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { CryptoCard } from "./CryptoCard";
+import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 import type { Coin, CoinRateMap } from "~/types/coin";
 
 interface CryptoGridProps {
@@ -63,10 +64,14 @@ function SortableCryptoCard({ coin, rate, priceHistory }: SortableCryptoCardProp
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: coin.code,
   });
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // dnd-kit's settle-into-place transition animates a spatial (transform)
+    // change, which prefers-reduced-motion asks apps to remove — the drop
+    // still lands correctly, just instantly instead of sliding.
+    transition: prefersReducedMotion ? undefined : transition,
     opacity: isDragging ? 0.5 : 1,
   };
 
