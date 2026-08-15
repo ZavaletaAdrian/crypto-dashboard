@@ -57,7 +57,7 @@
       "refersTo": "button-ghost",
       "description": "The only button style in the system — an outline/ghost control used for Refresh and other labeled actions.",
       "html": "<button class=\"ds-btn-ghost\">Refresh</button>",
-      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; } @media (prefers-reduced-motion: no-preference) { .ds-btn-ghost { transition: background 150ms ease; } }"
+      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }"
     },
     {
       "name": "Icon Button",
@@ -65,7 +65,7 @@
       "refersTo": "icon-button",
       "description": "Icon-only control used for the theme toggle.",
       "html": "<button class=\"ds-btn-icon\" aria-label=\"Toggle theme\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/></svg></button>",
-      "css": ".ds-btn-icon { background: transparent; color: #6b7280; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; } @media (prefers-reduced-motion: no-preference) { .ds-btn-icon { transition: background 150ms ease; } }"
+      "css": ".ds-btn-icon { background: transparent; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }"
     },
     {
       "name": "Drag Handle",
