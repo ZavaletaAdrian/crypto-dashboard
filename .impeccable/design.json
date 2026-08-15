@@ -13,6 +13,7 @@
       "ink-primary": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111827" },
       "ink-control": { "role": "neutral", "displayName": "Ink Control", "canonical": "#374151" },
       "ink-secondary": { "role": "neutral", "displayName": "Ink Secondary", "canonical": "#6b7280" },
+      "ink-icon": { "role": "neutral", "displayName": "Ink Icon", "canonical": "#4b5563" },
       "ink-tertiary": { "role": "neutral", "displayName": "Ink Tertiary", "canonical": "#9ca3af" },
       "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#ffffff" },
       "surface-recessed": { "role": "neutral", "displayName": "Surface Recessed", "canonical": "#f9fafb" },

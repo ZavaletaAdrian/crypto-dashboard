@@ -5,6 +5,7 @@ colors:
   ink-primary: "#111827"
   ink-control: "#374151"
   ink-secondary: "#6b7280"
+  ink-icon: "#4b5563"
   ink-tertiary: "#9ca3af"
   surface: "#ffffff"
   surface-recessed: "#f9fafb"
@@ -66,7 +67,7 @@ components:
     textColor: "{colors.ink-control}"
   icon-button:
     backgroundColor: "transparent"
-    textColor: "{colors.ink-secondary}"
+    textColor: "{colors.ink-icon}"
     rounded: "{rounded.md}"
     padding: "8px"
   drag-handle:
@@ -140,8 +141,9 @@ Each signal color is tuned independently per theme — not a single hex serving 
 ### Neutral
 - **Ink Primary** (`#111827`): headings, the page title, and every card's headline USD price — the darkest, highest-emphasis text in the system.
 - **Ink Control** (`#374151`): button and control label text (Refresh, etc.) — one step lighter than heading text, so interactive labels read as slightly quieter than data.
-- **Ink Secondary** (`#6b7280`): meta and secondary text — the page subtitle, a coin's symbol, the BTC sub-price line, default icon tint.
-- **Ink Tertiary** (`#9ca3af`): placeholder text and the most recessive icon states (filter-input placeholder, unfocused search icon).
+- **Ink Secondary** (`#6b7280`): meta and secondary text — the page subtitle, a coin's symbol, the BTC sub-price line.
+- **Ink Icon** (`#4b5563`): the theme toggle's icon color — one step darker than Ink Secondary. Its own token rather than reusing Ink Secondary, since the two have drifted to genuinely different values in the shipped code.
+- **Ink Tertiary** (`#9ca3af`): placeholder text and the most recessive icon states (filter-input placeholder, unfocused search icon, the drag handle's resting color).
 - **Surface** (`#ffffff`): card backgrounds and the base page background.
 - **Surface Recessed** (`#f9fafb`): the page backdrop directly behind cards, and the hover fill for ghost buttons — one shade off white, just enough to separate a card from the page without a shadow doing the work.
 - **Border Hairline** (`#e5e7eb`): card borders — the thinnest, quietest border weight.
