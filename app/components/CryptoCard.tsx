@@ -68,7 +68,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
           <button
             type="button"
             aria-label={`Reorder ${coin.name}`}
-            className="shrink-0 touch-none rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
+            className="shrink-0 touch-none rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
             {...dragHandleProps}
           >
             <GripVertical className="h-4 w-4" aria-hidden="true" />

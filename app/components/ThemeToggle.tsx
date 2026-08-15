@@ -20,7 +20,7 @@ export function ThemeToggle({ theme, mounted, onToggle }: ThemeToggleProps) {
       disabled={!mounted}
       aria-label={label}
       aria-pressed={mounted ? theme === "dark" : undefined}
-      className="inline-flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus-visible:outline-gray-100"
+      className="inline-flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus-visible:outline-gray-100"
     >
       {!mounted ? (
         <SunMoon className="h-4 w-4" aria-hidden="true" />
