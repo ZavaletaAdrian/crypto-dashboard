@@ -34,7 +34,9 @@ export function RefreshButton({ onRefresh, isRefreshing, retryAvailableAt }: Ref
       disabled={disabled}
       className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus-visible:outline-gray-100"
     >
-      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+      {/* motion-safe: the "Refreshing…" label already carries the state under
+          reduced motion — the spin is reinforcing feedback, not the only cue. */}
+      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "motion-safe:animate-spin" : ""}`} aria-hidden="true" />
       {label}
     </button>
   );

@@ -37,7 +37,13 @@ function label(tier: StalenessTier, ageMs: number | null, hasError: boolean): st
 export function StalenessBadge({ tier, ageMs, hasError = false }: StalenessBadgeProps) {
   const style = tier === "never" && hasError ? TIER_STYLES.stale : TIER_STYLES[tier];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style}`}>
+    // Color-only transition — explains the tier change as intentional state
+    // rather than a flicker. Not spatial movement, so left un-gated by
+    // motion-safe: (prefers-reduced-motion asks to remove movement, not
+    // color/state transitions that carry meaning).
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-200 ${style}`}
+    >
       <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
       {label(tier, ageMs, hasError)}
     </span>
