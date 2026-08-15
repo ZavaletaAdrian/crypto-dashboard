@@ -3,7 +3,7 @@ import { GripVertical, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Sparkline } from "./Sparkline";
 import { percentChange, trendDirection, type Trend } from "~/utils/priceHistory";
 import { COIN_ICON_URLS } from "~/data/coinIcons";
-import { STATUS_COLOR_HEX } from "~/data/statusPalette";
+import { STATUS_COLOR } from "~/data/statusPalette";
 import type { Coin, CoinRate } from "~/types/coin";
 
 interface CryptoCardProps {
@@ -35,13 +35,13 @@ function formatPercent(value: number): string {
 const TREND_ICONS = { up: TrendingUp, down: TrendingDown, flat: Minus };
 
 // Inline style (not a Tailwind class) so this shares one source of truth
-// with Sparkline's SVG colors via STATUS_COLOR_HEX — a Tailwind arbitrary
+// with Sparkline's SVG colors via STATUS_COLOR — a Tailwind arbitrary
 // class built from an imported constant (e.g. `text-[${hex}]`) wouldn't be
 // picked up by Tailwind's static source scan and would silently not apply.
 function trendColor(trend: Trend): string {
-  if (trend === "up") return STATUS_COLOR_HEX.good;
-  if (trend === "down") return STATUS_COLOR_HEX.critical;
-  return STATUS_COLOR_HEX.muted;
+  if (trend === "up") return STATUS_COLOR.good;
+  if (trend === "down") return STATUS_COLOR.critical;
+  return STATUS_COLOR.muted;
 }
 
 function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCardProps) {
@@ -51,7 +51,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
   const TrendIcon = TREND_ICONS[trend];
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md motion-safe:transition-shadow dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           {iconUrl ? (
@@ -60,7 +60,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
             <div className="h-7 w-7 shrink-0 rounded-full bg-gray-100 dark:bg-gray-800" aria-hidden="true" />
           )}
           <div className="min-w-0">
-            <div className="truncate leading-tight font-semibold">{coin.name}</div>
+            <h2 className="truncate leading-tight font-semibold">{coin.name}</h2>
             <div className="text-xs font-medium text-gray-500 uppercase dark:text-gray-400">{coin.code}</div>
           </div>
         </div>
@@ -68,7 +68,7 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
           <button
             type="button"
             aria-label={`Reorder ${coin.name}`}
-            className="shrink-0 touch-none rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+            className="shrink-0 touch-none rounded p-2.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
             {...dragHandleProps}
           >
             <GripVertical className="h-4 w-4" aria-hidden="true" />
@@ -103,8 +103,14 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
                     "this session") because priceHistory is a bounded rolling window —
                     older points drop off, so this isn't a full-session change once the
                     window fills, and it must not be misread as the 24h change most
-                    crypto UIs show. */}
-                <span className="text-[10px] text-gray-400 dark:text-gray-500">recent</span>
+                    crypto UIs show.
+                    On the documented `label` (12px) type step, not an ad hoc 10px —
+                    the previous 10px/gray-400(light)/gray-500(dark) pairing was both
+                    off-ramp and had the light/dark shades backwards from every other
+                    secondary text in this file, failing 4.5:1 in both themes (2.60:1
+                    light, 3.67:1 dark). This reuses the same gray-500/gray-400 pair
+                    the symbol and BTC sub-price already use, verified >=4.5:1 both ways. */}
+                <span className="text-xs text-gray-500 dark:text-gray-400">recent</span>
               </div>
             )}
           </div>

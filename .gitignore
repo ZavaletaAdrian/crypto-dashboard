@@ -7,3 +7,6 @@
 /build/
 .vscode/
 *.local
+
+# impeccable design-hook local cache (session-scoped, machine-local paths)
+.impeccable/hook.cache.json

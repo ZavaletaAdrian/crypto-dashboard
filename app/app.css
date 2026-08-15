@@ -11,6 +11,24 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+/* Trend signal colors (STATUS_COLOR in statusPalette.ts, used by
+   Sparkline/CryptoCard — the staleness badge has its own fixed palette) —
+   each mode tunes the same three hues independently so every state clears
+   4.5:1 against ITS OWN card surface (white / gray-900), instead of one
+   fixed hex trying to serve both and failing one of them. Consumed via
+   CSS custom properties (not a Tailwind class) per the Static-Scan Rule. */
+:root {
+  --status-good: #15803d;
+  --status-critical: #d03b3b;
+  --status-muted: #676561;
+}
+
+.dark {
+  --status-good: #0ca30c;
+  --status-critical: #ef4444;
+  --status-muted: #898781;
+}
+
 html,
 body {
   @apply bg-white dark:bg-gray-950;
