@@ -8,7 +8,7 @@ interface StalenessBadgeProps {
 }
 
 // Lamp color per tier — the dot's own text color, which also drives its glow
-// via `shadow-[0_0_theme_currentColor]` below. Same semantic hues as before
+// via `shadow-[0_0_5px_currentColor]` below. Same semantic hues as before
 // (Tailwind's own green/amber/red/gray), now read as a panel indicator lamp
 // rather than a colored pill.
 const LAMP_COLOR: Record<StalenessTier, string> = {
