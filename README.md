@@ -2,6 +2,8 @@
 
 A dynamic cryptocurrency dashboard built with React Router (framework mode) and React: live exchange rates from Coinbase, drag-and-drop reordering, and filtering — plus a written and coded resolution of five engineering tensions that show up whenever "real-time data" meets "rate-limited API."
 
+![Crypto Dashboard — dark mode, showing live rates, sparklines, and the drag-to-reorder handle on each card](docs/dashboard-screenshot.jpg)
+
 ## Tech stack
 
 - **React Router v8** (framework mode) via `create-react-router` — this is the actively maintained successor to classic Remix (same team, same core primitives: `loader`/`action`/`useLoaderData`/`useFetcher`/resource routes). The tech-stack ask was "Remix + React"; this delivers that stack under its current name.
@@ -26,6 +28,8 @@ npm run typecheck   # react-router typegen + tsc
 npm run build        # production build
 npm start            # serve the production build
 ```
+
+**Environment variables:** none required. Coinbase's `exchange-rates` and `currencies/crypto` endpoints used here are unauthenticated public reads — no API key to provision.
 
 ### Why `npm test` isn't just `vitest run`
 
@@ -53,12 +57,51 @@ app/
 
 **Data flow:** Coinbase → `coinbase.server.ts` → `rate-cache.server.ts` (the *only* thing allowed to call Coinbase; owns the token bucket) → `api.rates.ts` (serves the cache to clients, free reads) + the home route's own loader (SSR first paint) → `useRatesPolling` (polls the free internal route) → React state → re-render. No matter how many browser tabs are open, only a read that decides the cache is stale enough (`ensureFresh`) or a manual-refresh request that wins a token ever calls Coinbase — tabs never call it directly, which is what makes the shared 10/min budget hold across tabs automatically.
 
+```mermaid
+flowchart LR
+    T1[Browser tab 1]
+    T2[Browser tab 2]
+    Tn[Browser tab N]
+
+    subgraph Server["Server (one process)"]
+        API["/api/rates<br/>GET = read cache, POST = manual refresh"]
+        Cache["rate-cache.server.ts<br/>in-memory cache + token bucket<br/>(10 req/min, shared)"]
+        Loader["home route loader<br/>(SSR first paint)"]
+    end
+
+    CB[("Coinbase API<br/>exchange-rates")]
+
+    T1 -- poll every ~2.5s --> API
+    T2 -- poll every ~2.5s --> API
+    Tn -- poll every ~2.5s --> API
+    T1 -. first load .-> Loader
+    API --> Cache
+    Loader --> Cache
+    Cache -- "only if stale AND\na token is available" --> CB
+    CB --> Cache
+```
+
+Every tab's poll is a free read against the in-memory cache; the only edge that ever costs one of the shared 10 requests/minute is `Cache → Coinbase`, gated by the token bucket — tab count never changes how often that edge fires.
+
 **The math that makes T1 work at all:** `GET /v2/exchange-rates?currency=USD` returns, in one call, `rates[code]` = *units of code per 1 USD* for every currency Coinbase knows about, BTC included. So:
 
 - `usd(coin) = 1 / rates[coin]`
 - `btc(coin) = rates.BTC / rates[coin]` (a cross-rate through the shared USD base)
 
 One Coinbase call refreshes USD *and* BTC pricing for the entire coin list — confirmed against a live fetch (`rates.BTC / rates.BTC = 1`, `rates.BTC / rates.ETH ≈ 0.03`, a plausible ETH/BTC ratio).
+
+## Development workflow and tooling
+
+This project was built end-to-end with [Claude Code](https://claude.com/claude-code) (Anthropic's agentic CLI) as the primary development tool, working from this repo's own `CLAUDE.md` and `AGENTS.md` as durable project context across sessions rather than re-deriving conventions each time.
+
+- **Session orchestration — [Xirp](https://xirp.spotify.com/).** The build (scaffolding, the server data layer, core UI, drag-and-drop, the visual redesign, PR review fixes) was split across multiple Claude Code agent sessions coordinated with **Xirp**, Spotify's tool for spawning and tracking agent sessions against isolated git worktrees/branches, so unrelated units of work could proceed independently without one session's in-progress edits colliding with another's.
+- **Design system work — the `impeccable` Claude Code skill.** The visual system documented in `DESIGN.md` (and the product context in `PRODUCT.md`) was produced through `impeccable`'s commands rather than freehand styling: `init` to capture product truth, `audit` for accessibility/contrast/responsive passes, `polish`/`animate` for finishing and motion, and its new-work redesign flow for the full "Nixie-Tube Instrument Panel" visual identity — direction selection, a code-led build against a written direction contract, an automated `finish-reviewer` subagent pass that checks the shipped build against that contract and flags concrete fixes, and a `documenter` subagent that regenerates `DESIGN.md` from the actual built code (not from intent) once fixes land.
+- **Chart color rules — the `dataviz` Claude Code skill.** The trend sparkline on each card follows `dataviz`'s form-then-color procedure rather than an arbitrary chart palette: the line itself stays in a de-emphasized muted hue (README's "Muted-Line Rule," carried in `DESIGN.md`) with only the current/latest point picked out in a status color (good/critical), and any categorical or status color choice is validated for colorblind-safe contrast before use rather than eyeballed.
+- **Code review — GitHub Copilot.** Every feature branch's PR requests a review from `copilot-pull-request-reviewer[bot]` before it's eligible to merge. Comments are triaged individually — fixed when valid, or replied to with concrete evidence when not (e.g. one review round flagged several Tailwind opacity-modifier classes as producing invalid CSS; checking the actual compiled `build/client/assets/*.css` showed Tailwind v4 + lightningcss resolves them correctly via a `color-mix()` `@supports` fallback, so those were answered rather than "fixed").
+- **CI — GitHub Actions** (`.github/workflows/ci.yml`). Every push and pull request against `develop` or `main` runs `npm run typecheck`, `npm test`, and `npm run build` on Node 22.
+- **Deployment — Vercel.** `main` deploys to production (`https://crypto-dashboard-six-olive.vercel.app`); every pull request gets its own preview deployment. No `vercel.json` — Vercel's native React Router v7 (Vite) framework detection builds the SSR output (`build/server` + `build/client`) directly from `npm run build`.
+
+See `AGENTS.md` for the module boundaries and coding conventions this tooling was expected to follow, and the git branching model (`main` ← `develop` ← `feature/*`, one PR per feature branch).
 
 ## Tension Decisions
 
