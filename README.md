@@ -2,6 +2,8 @@
 
 A dynamic cryptocurrency dashboard built with React Router (framework mode) and React: live exchange rates from Coinbase, drag-and-drop reordering, and filtering — plus a written and coded resolution of five engineering tensions that show up whenever "real-time data" meets "rate-limited API."
 
+![Crypto Dashboard — dark mode, showing live rates, sparklines, and the drag-to-reorder handle on each card](docs/dashboard-screenshot.jpg)
+
 ## Tech stack
 
 - **React Router v8** (framework mode) via `create-react-router` — this is the actively maintained successor to classic Remix (same team, same core primitives: `loader`/`action`/`useLoaderData`/`useFetcher`/resource routes). The tech-stack ask was "Remix + React"; this delivers that stack under its current name.
@@ -26,6 +28,8 @@ npm run typecheck   # react-router typegen + tsc
 npm run build        # production build
 npm start            # serve the production build
 ```
+
+**Environment variables:** none required. Coinbase's `exchange-rates` and `currencies/crypto` endpoints used here are unauthenticated public reads — no API key to provision.
 
 ### Why `npm test` isn't just `vitest run`
 
@@ -52,6 +56,32 @@ app/
 ```
 
 **Data flow:** Coinbase → `coinbase.server.ts` → `rate-cache.server.ts` (the *only* thing allowed to call Coinbase; owns the token bucket) → `api.rates.ts` (serves the cache to clients, free reads) + the home route's own loader (SSR first paint) → `useRatesPolling` (polls the free internal route) → React state → re-render. No matter how many browser tabs are open, only a read that decides the cache is stale enough (`ensureFresh`) or a manual-refresh request that wins a token ever calls Coinbase — tabs never call it directly, which is what makes the shared 10/min budget hold across tabs automatically.
+
+```mermaid
+flowchart LR
+    T1[Browser tab 1]
+    T2[Browser tab 2]
+    Tn[Browser tab N]
+
+    subgraph Server["Server (one process)"]
+        API["/api/rates<br/>GET = read cache, POST = manual refresh"]
+        Cache["rate-cache.server.ts<br/>in-memory cache + token bucket<br/>(10 req/min, shared)"]
+        Loader["home route loader<br/>(SSR first paint)"]
+    end
+
+    CB[("Coinbase API<br/>exchange-rates")]
+
+    T1 -- poll every ~2.5s --> API
+    T2 -- poll every ~2.5s --> API
+    Tn -- poll every ~2.5s --> API
+    T1 -. first load .-> Loader
+    API --> Cache
+    Loader --> Cache
+    Cache -- "only if stale AND\na token is available" --> CB
+    CB --> Cache
+```
+
+Every tab's poll is a free read against the in-memory cache; the only edge that ever costs one of the shared 10 requests/minute is `Cache → Coinbase`, gated by the token bucket — tab count never changes how often that edge fires.
 
 **The math that makes T1 work at all:** `GET /v2/exchange-rates?currency=USD` returns, in one call, `rates[code]` = *units of code per 1 USD* for every currency Coinbase knows about, BTC included. So:
 
