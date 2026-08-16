@@ -9,21 +9,56 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
 }
 
-/* Trend signal colors (STATUS_COLOR in statusPalette.ts, used by
-   Sparkline/CryptoCard — the staleness badge has its own fixed palette) —
-   each mode tunes the same three hues independently so every state clears
-   4.5:1 against ITS OWN card surface (white / gray-900), instead of one
-   fixed hex trying to serve both and failing one of them. Consumed via
-   CSS custom properties (not a Tailwind class) per the Static-Scan Rule. */
+/* Instrument-panel chassis tokens (Nixie-Tube Instrument Panel direction).
+   Dark mode is the native scene — a dim room where the amber glow reads as a
+   real light source. Light mode isn't "dark mode inverted": in daylight the
+   glow can't dominate the way it does in a dim room, so amber goes to a
+   deep, burnt tone (still unmistakably amber, just not trying to out-glow the
+   sun) rather than staying neon-bright and failing contrast. Same physical
+   object under two different ambient-light scenes, not two different
+   products.
+
+   Light mode's surface treatment follows real trading-platform convention
+   (Binance et al.): crisp near-white throughout, hierarchy from typography
+   and hairline dividers rather than a page-vs-card background split — dark
+   mode keeps the deeper chassis-on-a-floor read since that's the dim-room
+   scene the glow needs. */
 :root {
+  --panel-page: #fafafa;
+  --panel-chassis: #ffffff;
+  --panel-border: #dfe2e6;
+  --panel-text-primary: #0f1115;
+  --panel-text-secondary: #6b7076;
+  --panel-amber: #9a4d00;
+  --panel-amber-glow: transparent;
+  --panel-amber-glow-core: transparent;
+  --panel-chassis-highlight: rgba(255, 255, 255, 0.9);
+  --panel-chassis-shadow: rgba(15, 17, 21, 0.08);
+
   --status-good: #15803d;
   --status-critical: #d03b3b;
   --status-muted: #676561;
 }
 
 .dark {
+  --panel-page: #0a0b0d;
+  --panel-chassis: #17191d;
+  --panel-border: #2b2e34;
+  --panel-text-primary: #e8e9eb;
+  --panel-text-secondary: #9a9ea6;
+  --panel-amber: #ffa726;
+  /* Two-layer glow: a tight, near-opaque core (the tube's own bright surface)
+     plus a wide, soft halo (light spilling into the glass around it) — a
+     single soft shadow alone read as "bold text" in review, not a light
+     source. */
+  --panel-amber-glow-core: rgba(255, 167, 38, 0.9);
+  --panel-amber-glow: rgba(255, 167, 38, 0.55);
+  --panel-chassis-highlight: rgba(255, 255, 255, 0.05);
+  --panel-chassis-shadow: rgba(0, 0, 0, 0.5);
+
   --status-good: #0ca30c;
   --status-critical: #ef4444;
   --status-muted: #898781;
@@ -31,7 +66,8 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  background: var(--panel-page);
+  color: var(--panel-text-primary);
 }
 
 /* Explicit in both directions — not just html.dark — so UA chrome (form
@@ -54,3 +90,60 @@ html.dark {
    this app has no working functionality regardless (filtering, drag-and-
    drop, and live polling all require it). Accepted as an out-of-scope edge
    case rather than adding that bookkeeping for a still-broken experience. */
+
+/* Gives each card an actual panel material read instead of a flat bordered
+   rectangle: a thin bright top edge (light catching the panel's upper lip)
+   and a soft inset shadow along the rest (the panel sitting slightly
+   recessed into its own surface) — a genuine, if restrained, "this is a
+   physical object" cue the flat hairline border alone didn't carry. */
+.ds-chassis-panel {
+  box-shadow:
+    inset 0 1px 0 0 var(--panel-chassis-highlight),
+    inset 0 -1px 6px 0 var(--panel-chassis-shadow);
+}
+
+/* The drag handle as a countersunk panel fastener — a small inset shadow
+   suggesting the mount point sits slightly recessed into the chassis,
+   distinct from a flat icon button wearing the same border color. */
+.ds-panel-fastener {
+  box-shadow: inset 0 1px 2px 0 var(--panel-chassis-shadow);
+}
+
+/* The digit-tube price readout: tabular mono numerals. Typography only —
+   color is a separate modifier (--lit) so a coin with no rate yet renders as
+   an unlit tube (plain muted text), not a "reading" that was never taken. */
+.ds-digit-readout {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lit state: amber, glowing only in dark mode (--panel-amber-glow is
+   transparent in light mode — daylight scenes don't render a dominant glow). */
+.ds-digit-readout--lit {
+  color: var(--panel-amber);
+  text-shadow:
+    0 0 2px var(--panel-amber-glow-core),
+    0 0 16px var(--panel-amber-glow);
+}
+
+/* Fires once when a price actually changes value (see useValueChangeFlash) —
+   a brief depth cross-fade standing in for a nixie tube's physical digit
+   changeover, not a decorative flourish on every poll tick. Spatial-adjacent
+   (blur reads as depth), so it's skipped entirely under reduced motion —
+   the new digits still appear, just without the transition. */
+@media (prefers-reduced-motion: no-preference) {
+  .ds-digit-readout[data-changed="true"] {
+    animation: digit-crossfade 260ms ease-out;
+  }
+}
+
+@keyframes digit-crossfade {
+  from {
+    opacity: 0.2;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
