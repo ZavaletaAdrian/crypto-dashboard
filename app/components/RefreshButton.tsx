@@ -32,7 +32,7 @@ export function RefreshButton({ onRefresh, isRefreshing, retryAvailableAt }: Ref
       type="button"
       onClick={() => void onRefresh()}
       disabled={disabled}
-      className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus-visible:outline-gray-100"
+      className="inline-flex items-center gap-2 rounded-lg border border-[var(--panel-border)] bg-[var(--panel-chassis)] px-3 py-1.5 text-sm font-medium text-[var(--panel-text-primary)] hover:border-[var(--panel-amber)]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--panel-amber)] disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors"
     >
       {/* motion-safe: the "Refreshing…" label already carries the state under
           reduced motion — the spin is reinforcing feedback, not the only cue. */}
