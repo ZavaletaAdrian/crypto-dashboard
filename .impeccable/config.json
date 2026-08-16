@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-08-15T17:05:37.769Z",
+        "reason": "Deliberate choice for an Operate-mode dashboard where Inter's small-size legibility is functional, not a reflexive default — confirmed across the original design, the audit, and this identity redesign; the new identity lives in color/material treatment of the digit readouts, not the label typeface."
+      }
+    ]
+  }
+}

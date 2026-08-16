@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { STATUS_COLOR } from "~/data/statusPalette";
 import type { Trend } from "~/utils/priceHistory";
 
@@ -17,6 +18,11 @@ interface SparklineProps {
 const MARKER_RADIUS = 4;
 
 export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineProps) {
+  // Unique per instance — this page renders one Sparkline per card, and an
+  // SVG filter id is a global DOM id, so a shared literal would make every
+  // card's glow reference whichever <filter> happened to be first in the DOM.
+  const glowId = `sparkline-glow-${useId()}`;
+
   if (values.length < 2) {
     return <svg width={width} height={height} aria-hidden="true" />;
   }
@@ -49,6 +55,15 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
       role="img"
       aria-label={`Recent price trend: ${trend}`}
     >
+      <defs>
+        <filter id={glowId} x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       <path
         d={linePath}
         fill="none"
@@ -57,7 +72,7 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} style={{ fill: accent }} />
+      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} fill={accent} filter={`url(#${glowId})`} />
     </svg>
   );
 }

@@ -1,49 +1,48 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-15T15:57:45Z",
+  "generatedAt": "2026-08-16T00:00:00Z",
   "title": "Design System: Crypto Dashboard",
   "extensions": {
     "colorMeta": {
-      "market-green-light": { "role": "status", "displayName": "Market Green (light)", "canonical": "#15803d", "tonalRamp": ["#062206", "#0d3d0d", "#0f5f0f", "#15803d", "#3ea065", "#71bf8d", "#a5dfba", "#dcf4e2"] },
-      "market-green-dark": { "role": "status", "displayName": "Market Green (dark)", "canonical": "#0ca30c", "tonalRamp": ["#0a2e0a", "#0f4f0f", "#137013", "#0ca30c", "#3fc23f", "#72d972", "#a6eca6", "#dcf9dc"] },
-      "market-red-light": { "role": "status", "displayName": "Market Red (light)", "canonical": "#d03b3b", "tonalRamp": ["#3d0f0f", "#661a1a", "#9c2929", "#d03b3b", "#dd6b6b", "#e89999", "#f2c2c2", "#fae3e3"] },
-      "market-red-dark": { "role": "status", "displayName": "Market Red (dark)", "canonical": "#ef4444", "tonalRamp": ["#450a0a", "#7f1d1d", "#b91c1c", "#ef4444", "#f47171", "#f8a3a3", "#fbc9c9", "#fde3e3"] },
-      "neutral-gray-light": { "role": "status", "displayName": "Neutral Gray (light)", "canonical": "#676561", "tonalRamp": ["#1a1918", "#302f2d", "#4a4845", "#676561", "#847f79", "#a3a19d", "#c4c2be", "#e5e4e2"] },
-      "neutral-gray-dark": { "role": "status", "displayName": "Neutral Gray (dark)", "canonical": "#898781", "tonalRamp": ["#232220", "#3d3c39", "#5c5a56", "#726f6a", "#898781", "#a8a6a1", "#c8c6c2", "#e6e5e2"] },
-      "ink-primary": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111827" },
-      "ink-control": { "role": "neutral", "displayName": "Ink Control", "canonical": "#374151" },
-      "ink-secondary": { "role": "neutral", "displayName": "Ink Secondary", "canonical": "#6b7280" },
-      "ink-icon": { "role": "neutral", "displayName": "Ink Icon", "canonical": "#4b5563" },
-      "ink-tertiary": { "role": "neutral", "displayName": "Ink Tertiary", "canonical": "#9ca3af" },
-      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#ffffff" },
-      "surface-recessed": { "role": "neutral", "displayName": "Surface Recessed", "canonical": "#f9fafb" },
-      "border-hairline": { "role": "neutral", "displayName": "Border Hairline", "canonical": "#e5e7eb" },
-      "border-control": { "role": "neutral", "displayName": "Border Control", "canonical": "#d1d5db" },
-      "badge-live-bg": { "role": "status", "displayName": "Live Badge Background", "canonical": "#dcfce7" },
-      "badge-live-text": { "role": "status", "displayName": "Live Badge Text", "canonical": "#166534" },
-      "badge-delayed-bg": { "role": "status", "displayName": "Delayed Badge Background", "canonical": "#fef3c7" },
-      "badge-delayed-text": { "role": "status", "displayName": "Delayed Badge Text", "canonical": "#92400e" },
-      "badge-stale-bg": { "role": "status", "displayName": "Stale Badge Background", "canonical": "#fee2e2" },
-      "badge-stale-text": { "role": "status", "displayName": "Stale Badge Text", "canonical": "#991b1b" },
-      "badge-never-bg": { "role": "status", "displayName": "Never/Loading Badge Background", "canonical": "#f3f4f6" },
-      "badge-never-text": { "role": "status", "displayName": "Never/Loading Badge Text", "canonical": "#4b5563" }
+      "panel-page": { "role": "neutral", "displayName": "Panel Page", "canonical": "#fafafa", "tonalRamp": ["#0a0b0d", "#17191d", "#2b2e34", "#6b7076", "#9a9ea6", "#dfe2e6", "#fafafa", "#ffffff"] },
+      "panel-chassis": { "role": "neutral", "displayName": "Panel Chassis", "canonical": "#ffffff" },
+      "panel-border": { "role": "neutral", "displayName": "Panel Border", "canonical": "#dfe2e6" },
+      "panel-text-primary": { "role": "neutral", "displayName": "Panel Text Primary", "canonical": "#0f1115" },
+      "panel-text-secondary": { "role": "neutral", "displayName": "Panel Text Secondary", "canonical": "#6b7076" },
+      "panel-amber": { "role": "primary", "displayName": "Panel Amber (light: burnt, glow off)", "canonical": "#9a4d00" },
+      "panel-amber-dark": { "role": "primary", "displayName": "Panel Amber (dark: native glow scene)", "canonical": "#ffa726" },
+      "panel-amber-glow-core-dark": { "role": "primary", "displayName": "Digit Glow Core (dark only; transparent in light)", "canonical": "rgba(255, 167, 38, 0.9)" },
+      "panel-amber-glow-dark": { "role": "primary", "displayName": "Digit Glow Halo (dark only; transparent in light)", "canonical": "rgba(255, 167, 38, 0.55)" },
+      "status-good": { "role": "status", "displayName": "Status Good (light)", "canonical": "#15803d", "tonalRamp": ["#062206", "#0d3d0d", "#0f5f0f", "#15803d", "#3ea065", "#71bf8d", "#a5dfba", "#dcf4e2"] },
+      "status-good-dark": { "role": "status", "displayName": "Status Good (dark)", "canonical": "#0ca30c" },
+      "status-critical": { "role": "status", "displayName": "Status Critical (light)", "canonical": "#d03b3b", "tonalRamp": ["#3d0f0f", "#661a1a", "#9c2929", "#d03b3b", "#dd6b6b", "#e89999", "#f2c2c2", "#fae3e3"] },
+      "status-critical-dark": { "role": "status", "displayName": "Status Critical (dark)", "canonical": "#ef4444" },
+      "status-muted": { "role": "status", "displayName": "Status Muted (light)", "canonical": "#676561", "tonalRamp": ["#1a1918", "#302f2d", "#4a4845", "#676561", "#847f79", "#a3a19d", "#c4c2be", "#e5e4e2"] },
+      "status-muted-dark": { "role": "status", "displayName": "Status Muted (dark)", "canonical": "#898781" },
+      "lamp-live": { "role": "status", "displayName": "Staleness Lamp — Live (component-scoped, not STATUS_COLOR)", "canonical": "#22c55e" },
+      "lamp-delayed": { "role": "status", "displayName": "Staleness Lamp — Delayed", "canonical": "#f59e0b" },
+      "lamp-stale": { "role": "status", "displayName": "Staleness Lamp — Stale", "canonical": "#ef4444" },
+      "lamp-never": { "role": "status", "displayName": "Staleness Lamp — Never/Loading", "canonical": "#9ca3af" }
     },
     "typographyMeta": {
-      "title": { "displayName": "Title", "purpose": "The page's h1 and every card's headline USD price — the single top type tier in the system, shared rather than separated into a larger display size." },
-      "body": { "displayName": "Body", "purpose": "Page subtitle, button labels, filter input text." },
-      "label": { "displayName": "Label", "purpose": "Coin symbols, badge text, small captions like the delta chip's \"recent\" caption." },
-      "mono": { "displayName": "Mono", "purpose": "The BTC sub-price value only — fixed-width digits for scanability down a column of cards." }
+      "title": { "displayName": "Title", "purpose": "The page's h1 only, in Inter." },
+      "digit-readout": { "displayName": "Digit Readout", "purpose": "Each card's headline USD price — shares Title's size/weight but renders in the mono face with tabular-nums, since it is instrument data, not a heading." },
+      "headline": { "displayName": "Headline", "purpose": "Each card's coin name (h2) — one step below Title/Digit Readout, a real shift from the prior world where card name and price shared one size." },
+      "body": { "displayName": "Body", "purpose": "Page subtitle, button labels, filter input text, banner/empty-state copy." },
+      "label": { "displayName": "Label", "purpose": "Coin symbol, BTC sub-price, badge text, the delta chip's 'recent' caption — mono, for column alignment." }
     },
     "shadows": [
-      { "name": "card-rest", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Card's resting elevation — barely visible, the system's quietest shadow." },
-      { "name": "card-hover", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Card's only elevation change, on hover — signals the card is liftable/draggable. No other component in the system ever uses a shadow." }
+      { "name": "chassis-panel", "value": "inset 0 1px 0 0 var(--panel-chassis-highlight), inset 0 -1px 6px 0 var(--panel-chassis-shadow)", "purpose": "Ambient, resting-state card depth — a bright top lip plus a soft inset shadow. Subtle in light mode, clearly visible in dark mode. Not a hover-triggered effect." },
+      { "name": "panel-fastener", "value": "inset 0 1px 2px 0 var(--panel-chassis-shadow)", "purpose": "Drag handle's countersunk-mount read, distinct from the flat square icon buttons beside it." },
+      { "name": "digit-glow", "value": "text-shadow: 0 0 2px var(--panel-amber-glow-core), 0 0 16px var(--panel-amber-glow)", "purpose": "Two-layer glow on a lit digit-tube readout — tight near-opaque core plus wide soft halo. Both glow tokens are transparent in light mode, so this renders as plain amber text there with no glow at all." },
+      { "name": "sparkline-end-dot-glow", "value": "SVG filter: feGaussianBlur stdDeviation=1.5 + feMerge over SourceGraphic, per-instance useId()-scoped id", "purpose": "Glow on the sparkline's terminal point only, in the trend's status color." }
     ],
     "motion": [
-      { "name": "card-shadow-transition", "value": "motion-safe:transition-shadow (box-shadow 150ms ease)", "purpose": "Smooths the rest-to-hover shadow step on cards. Gated behind motion-safe: — spatial-adjacent enough to skip under prefers-reduced-motion." },
-      { "name": "drag-transform", "value": "dnd-kit's transform/transition, suppressed via usePrefersReducedMotion", "purpose": "Card position animates during drag-and-drop reorder. The transition string is dropped entirely under reduced motion — the drop still lands correctly, just instantly instead of sliding." },
-      { "name": "refresh-spin", "value": "motion-safe:animate-spin", "purpose": "RefreshCw icon spins while a refresh is in flight. Gated behind motion-safe: since the \"Refreshing…\" label already carries the state without it." },
-      { "name": "badge-color-transition", "value": "transition-colors duration-200", "purpose": "Staleness badge's tier color change. Deliberately NOT gated by motion-safe: — a color transition isn't the spatial movement reduced motion asks apps to remove." },
-      { "name": "focus-ring", "value": "instant (no transition)", "purpose": "focus-visible outline appears/disappears immediately — a focus indicator that faded in would be slower to notice, not more polished." }
+      { "name": "digit-crossfade", "value": "@keyframes digit-crossfade 260ms ease-out (opacity 0.2->1, blur(2px)->blur(0)), gated under prefers-reduced-motion: no-preference", "purpose": "Fires once when a card's displayed price actually changes value (useValueChangeFlash) — the signature 'nixie tube physical digit changeover' interaction. Never fires on mount or on a poll tick that didn't move the price." },
+      { "name": "drag-transform", "value": "dnd-kit's transform/transition, suppressed via usePrefersReducedMotion", "purpose": "Card position animates during drag-and-drop reorder; dropped entirely under reduced motion so the drop still lands, just instantly." },
+      { "name": "refresh-spin", "value": "motion-safe:animate-spin", "purpose": "RefreshCw icon spins while a refresh is in flight; gated since the 'Refreshing…' label already carries the state without it." },
+      { "name": "lamp-color-transition", "value": "transition-colors duration-200", "purpose": "Staleness lamp's tier color change. Deliberately NOT gated by motion-safe — a color transition isn't the spatial movement reduced motion asks apps to remove." },
+      { "name": "card-border-hover", "value": "motion-safe:transition-colors", "purpose": "Card/button/input border shifts to panel-amber/40-60 on hover — replaces the prior world's hover-shadow elevation step entirely." }
     ],
     "breakpoints": [
       { "name": "sm", "value": "640px" },
@@ -53,44 +52,36 @@
   },
   "components": [
     {
-      "name": "Ghost Button",
-      "kind": "button",
-      "refersTo": "button-ghost",
-      "description": "The only button style in the system — an outline/ghost control used for Refresh and other labeled actions.",
-      "html": "<button class=\"ds-btn-ghost\">Refresh</button>",
-      "css": ".ds-btn-ghost { background: transparent; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { background: #f9fafb; } .ds-btn-ghost:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-ghost:focus-visible { outline-color: #f3f4f6; }"
-    },
-    {
-      "name": "Icon Button",
-      "kind": "button",
-      "refersTo": "icon-button",
-      "description": "Icon-only control used for the theme toggle.",
-      "html": "<button class=\"ds-btn-icon\" aria-label=\"Toggle theme\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/></svg></button>",
-      "css": ".ds-btn-icon { background: transparent; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-icon:hover { background: #f9fafb; } .ds-btn-icon:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .ds-btn-icon:disabled { opacity: 0.5; cursor: not-allowed; } .dark .ds-btn-icon:focus-visible { outline-color: #f3f4f6; }"
-    },
-    {
-      "name": "Drag Handle",
-      "kind": "button",
-      "refersTo": "drag-handle",
-      "description": "Icon-only grab affordance on each card, borderless at rest. Padding was grown from 4px to 10px (24x24 -> 36x36 hit area) after an accessibility audit found it under the practical 44x44 touch-target minimum for the app's sole drag-and-drop grab point.",
-      "html": "<button class=\"ds-drag-handle\" aria-label=\"Reorder Bitcoin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"6\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"18\" r=\"1\"/><circle cx=\"15\" cy=\"6\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"18\" r=\"1\"/></svg></button>",
-      "css": ".ds-drag-handle { background: transparent; color: #9ca3af; border: none; border-radius: 0.25rem; padding: 10px; touch-action: none; } .ds-drag-handle:hover { background: #f3f4f6; color: #4b5563; } .ds-drag-handle:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-drag-handle:focus-visible { outline-color: #f3f4f6; }"
-    },
-    {
       "name": "Crypto Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "The system's signature container: coin identity + logo up top (name is a real <h2>, not a styled div), USD/BTC price and trend sparkline below.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><div class=\"ds-card-logo\"></div><div><h2 class=\"ds-card-name\">Ethereum</h2><div class=\"ds-card-symbol\">ETH</div></div></div><div class=\"ds-card-price\">$3,214.50</div><div class=\"ds-card-btc\">0.04123000 BTC</div></div>",
-      "css": ".ds-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 16px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-card:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); } @media (prefers-reduced-motion: no-preference) { .ds-card { transition: box-shadow 150ms ease; } } .ds-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; } .ds-card-logo { width: 28px; height: 28px; border-radius: 9999px; background: #f3f4f6; } .ds-card-name { font-size: 1.25rem; font-weight: 600; color: #111827; line-height: 1.3; margin: 0; } .ds-card-symbol { font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; } .ds-card-price { font-size: 1.25rem; font-weight: 600; color: #111827; } .ds-card-btc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; color: #6b7280; margin-top: 2px; }"
+      "description": "The system's signature container: chassis-depth panel with a coin identity header (real h2, drag-handle fastener top-right) and a digit-tube price readout below. Shown here in dark mode, the glow-native scene.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><div class=\"ds-card-logo\"></div><div><h2 class=\"ds-card-name\">Ethereum</h2><div class=\"ds-card-symbol\">ETH</div></div><button class=\"ds-fastener\" aria-label=\"Reorder Ethereum\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"6\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"18\" r=\"1\"/><circle cx=\"15\" cy=\"6\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"18\" r=\"1\"/></svg></button></div><div class=\"ds-digit-readout\">$3,214.50</div><div class=\"ds-card-btc\">0.04123000 BTC</div></div>",
+      "css": ".ds-card { background: #17191d; border: 1px solid #2b2e34; border-radius: 0.5rem; padding: 16px; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.05), inset 0 -1px 6px 0 rgba(0,0,0,0.5); } .ds-card:hover { border-color: rgba(255,167,38,0.4); } @media (prefers-reduced-motion: no-preference) { .ds-card { transition: border-color 150ms ease; } } .ds-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; position: relative; } .ds-card-logo { width: 28px; height: 28px; border-radius: 9999px; background: #2b2e34; } .ds-card-name { font-size: 1rem; font-weight: 600; color: #e8e9eb; line-height: 1.3; margin: 0; } .ds-card-symbol { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.75rem; font-weight: 500; color: #9a9ea6; text-transform: uppercase; } .ds-fastener { margin-left: auto; background: transparent; border: 1px solid #2b2e34; border-radius: 9999px; padding: 10px; color: #9a9ea6; box-shadow: inset 0 1px 2px 0 rgba(0,0,0,0.5); } .ds-fastener:hover { border-color: rgba(255,167,38,0.4); color: #ffa726; } .ds-digit-readout { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 1.25rem; font-weight: 600; color: #ffa726; text-shadow: 0 0 2px rgba(255,167,38,0.9), 0 0 16px rgba(255,167,38,0.55); } .ds-card-btc { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.75rem; color: #9a9ea6; margin-top: 2px; }"
+    },
+    {
+      "name": "Panel Fastener (Drag Handle)",
+      "kind": "button",
+      "refersTo": "panel-fastener",
+      "description": "Circular, countersunk-mount re-skin of the drag handle — distinct from the square rounded-lg icon buttons (theme toggle, refresh) elsewhere on the page.",
+      "html": "<button class=\"ds-fastener-standalone\" aria-label=\"Reorder Bitcoin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"6\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"18\" r=\"1\"/><circle cx=\"15\" cy=\"6\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"18\" r=\"1\"/></svg></button>",
+      "css": ".ds-fastener-standalone { background: transparent; color: #6b7076; border: 1px solid #dfe2e6; border-radius: 9999px; padding: 10px; box-shadow: inset 0 1px 2px 0 rgba(15,17,21,0.08); } .ds-fastener-standalone:hover { border-color: rgba(154,77,0,0.4); color: #9a4d00; } .ds-fastener-standalone:focus-visible { outline: 2px solid #9a4d00; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button (Refresh)",
+      "kind": "button",
+      "refersTo": "button-refresh",
+      "description": "The system's only button style — chassis background, hairline border, amber hover/focus.",
+      "html": "<button class=\"ds-btn-ghost\">Refresh</button>",
+      "css": ".ds-btn-ghost { background: #ffffff; color: #0f1115; border: 1px solid #dfe2e6; border-radius: 0.5rem; padding: 6px 12px; font-size: 0.875rem; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; } .ds-btn-ghost:hover { border-color: rgba(154,77,0,0.4); } .ds-btn-ghost:focus-visible { outline: 2px solid #9a4d00; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }"
     },
     {
       "name": "Staleness Badge (Live)",
       "kind": "chip",
-      "refersTo": "badge-live",
-      "description": "One of four fixed-color pill badges signaling data freshness; always paired with a solid dot so state is never color-alone. Delayed/Stale/Never swap only the bg/text token pair. The tier color change animates via a 200ms transition (kept under reduced motion — see extensions.motion).",
-      "html": "<span class=\"ds-badge ds-badge-live\"><span class=\"ds-badge-dot\"></span>Live</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; transition: background-color 200ms, color 200ms; } .ds-badge-live { background: #dcfce7; color: #166534; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; }"
+      "refersTo": "badge-staleness",
+      "description": "Pill badge + lamp dot signaling data freshness. The lamp dot uses a component-scoped literal color set (green/amber/red/gray), not the shared STATUS_COLOR tokens the sparkline/delta chip use — see DESIGN.md's Do's and Don'ts on why this isn't promoted into a second general-purpose status source.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>Live</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 8px; background: #fafafa; border: 1px solid #dfe2e6; color: #6b7076; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; color: #22c55e; box-shadow: 0 0 5px currentColor; transition: color 200ms; }"
     },
     {
       "name": "Filter Input",
@@ -98,53 +89,49 @@
       "refersTo": "input-filter",
       "description": "The page's single text filter, with a leading search icon.",
       "html": "<div class=\"ds-input-wrap\"><svg class=\"ds-input-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-input-filter\" placeholder=\"Filter by name or symbol…\" /></div>",
-      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #111827; } .ds-input-filter::placeholder { color: #9ca3af; } .ds-input-filter:focus { border-color: #9ca3af; } .ds-input-filter:focus-visible { outline: 2px solid #111827; outline-offset: 2px; } .dark .ds-input-filter:focus-visible { outline-color: #f3f4f6; }"
+      "css": ".ds-input-wrap { position: relative; max-width: 20rem; } .ds-input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7076; pointer-events: none; } .ds-input-filter { width: 100%; border: 1px solid #dfe2e6; border-radius: 0.5rem; padding: 6px 12px 6px 36px; font-size: 0.875rem; color: #0f1115; background: #ffffff; } .ds-input-filter::placeholder { color: #6b7076; } .ds-input-filter:focus { border-color: rgba(154,77,0,0.6); } .ds-input-filter:focus-visible { outline: 2px solid #9a4d00; outline-offset: 2px; }"
     },
     {
       "name": "Trend Sparkline",
       "kind": "custom",
-      "description": "Signature component: a 64x24 inline SVG trend line, always muted, with only its final point colored by trend direction. Colors resolve from --status-good/--status-critical/--status-muted, which differ per theme (see colorMeta market-green-light/dark etc.) — this snippet shows the light-mode values.",
-      "html": "<svg class=\"ds-sparkline\" width=\"64\" height=\"24\" viewBox=\"0 0 64 24\"><path d=\"M4,18 L20,12 L36,15 L52,7 L60,4\" fill=\"none\" stroke=\"#676561\" stroke-width=\"2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"4\" r=\"4\" fill=\"#15803d\"/></svg>",
+      "description": "64x24 inline SVG trend line: always muted, with only the terminal point colored by trend direction and glowing via a per-instance feGaussianBlur/feMerge filter. Shown here with light-mode status-good.",
+      "html": "<svg class=\"ds-sparkline\" width=\"64\" height=\"24\" viewBox=\"0 0 64 24\"><defs><filter id=\"glow-demo\" x=\"-100%\" y=\"-100%\" width=\"300%\" height=\"300%\"><feGaussianBlur stdDeviation=\"1.5\" result=\"blur\"/><feMerge><feMergeNode in=\"blur\"/><feMergeNode in=\"SourceGraphic\"/></feMerge></filter></defs><path d=\"M4,18 L20,12 L36,15 L52,7 L60,4\" fill=\"none\" stroke=\"#676561\" stroke-width=\"2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"4\" r=\"4\" fill=\"#15803d\" filter=\"url(#glow-demo)\"/></svg>",
       "css": ".ds-sparkline { display: block; }"
     }
   ],
   "narrative": {
-    "northStar": "The Instrument Panel",
-    "overview": "This is a data-first dashboard, not a marketing surface: it reads like an instrument cluster built to be scanned at a glance, where the numbers are the interface and the chrome around them recedes on purpose. There is no brand accent color anywhere in the system — the entire UI is grayscale except for a small, fixed set of functional signal colors (market-green, market-red, neutral-gray, plus the amber/red/green badge pairs) that exist purely to carry state, never decoration. Every non-neutral pixel on screen is answering a question (\"is this trending up?\", \"is this data fresh?\") rather than expressing a personality.\n\nDensity stays comfortable rather than tight: cards get real breathing room (16px internal padding, 16px grid gutters), text sizes top out modestly (the largest text anywhere is 20px, on both the page title and each card's headline price — there is no oversized \"hero\" numeral), and the whole system rejects visual noise in favor of legibility at a glance. Nothing here was rejected from a louder direction; restraint was the starting brief, not a fallback.",
+    "northStar": "The Nixie-Tube Instrument Panel",
+    "overview": "This build supersedes \"The Instrument Panel\" (the prior grayscale, no-accent world). The thesis held — the numbers are still the interface — but the execution committed to a single physical metaphor: each price is a glowing digit-tube reading on a brushed-steel chassis, not a flat number in a bordered card. One warm amber is the system's single committed signal — the instrument's own light source — rendered as tabular-mono digits that go from an unlit, muted tube (no rate yet) to a lit, glowing one (a real reading in hand) the instant data arrives.\n\nThe chassis material is genuinely dual-scene, not a single palette with a dark-mode filter over it. Dark mode is the native scene: a dim room where a two-layer text-shadow (a near-opaque core plus a soft wide halo) makes the amber price read as an actual light source, and the card itself gets a real inset-shadow chassis depth against a near-black floor. Light mode is not that scene inverted — it follows real trading-platform convention (Binance-style): crisp near-white throughout, hierarchy carried by hairline dividers and typography, and the amber token retunes to a deep burnt tone with its glow tokens literally set to transparent, because a daylight scene cannot sustain a dominant glow the way a dim room can.",
     "keyCharacteristics": [
-      "Fully grayscale base palette; color exists only as functional signal (trend direction, freshness state), never as brand or decoration.",
-      "Flat-by-default surfaces; the only shadow in the entire system is a single hover-elevation step on cards.",
-      "One typographic ceiling (20px/600) shared by the page title and every card's price — no oversized hero type.",
-      "Status is always color + a second cue (an icon, a label, or both) — color alone never carries meaning.",
-      "Coin logos are the one genuinely decorative element allowed; everything else is typographic or geometric."
+      "One committed accent (amber) marks affordance and 'a real reading exists'; it never carries market-direction or freshness meaning — those stay in a separate status palette.",
+      "Dark mode is the hero scene for the amber glow (two-layer text-shadow); light mode is a genuinely different, glow-off reading of the same object, not an inversion.",
+      "The digit-readout tube is typography-only until a --lit modifier is applied on a truthy rate — an unlit tube is never mistaken for 'a reading that was never taken.'",
+      "Depth is now ambient (inset chassis shadows on the card and drag-handle-as-fastener), not interactive-only hover feedback the way the prior world's single hover-shadow was.",
+      "Radius language simplified to two steps: rounded-lg for every container/control, rounded-full for anything meant to read as a dot, mount, or lamp."
     ],
     "rules": [
-      { "name": "The No-Brand-Color Rule", "body": "Nothing in this system is colored for decoration or identity. A color is only ever earned by carrying a state — trend direction or data freshness. If a future addition wants a \"brand\" color, that is a deliberate identity decision to make explicitly, not a default to reach for.", "section": "colors" },
-      { "name": "The Static-Scan Rule", "body": "Signal colors (Market Green/Red/Neutral Gray) must be applied via inline style (or CSS variables), never as a Tailwind arbitrary-value class built from a JS constant — Tailwind's static source scanner cannot see a template-literal class name at build time and will silently drop it. This was a real bug in this codebase; the fix is the standing rule.", "section": "colors" },
-      { "name": "The Per-Theme Signal Rule", "body": "A signal color never gets one fixed hex shared by both themes. Each of the three signal colors is tuned independently for light and dark so it clears 4.5:1 against its own card surface — a value picked for one theme is not assumed to work in the other without checking.", "section": "colors" },
-      { "name": "The One-Tier-Up Rule", "body": "Nothing in the interface is allowed to out-rank a card's own price in size or weight — the page title and the price sit at the exact same visual weight on purpose, reinforcing that the data is the content, not the chrome around it.", "section": "typography" },
-      { "name": "The Flat-By-Default Rule", "body": "Shadows exist solely as hover feedback on interactive cards. No other component — button, input, badge, header — ever gets a shadow, at rest or on hover; their separation comes from a border or a background shift instead.", "section": "elevation" },
-      { "name": "The Muted-Line Rule", "body": "A trend sparkline's line is always the neutral/muted hue; only its terminal point ever takes the signal color. No sparkline line is ever colored by direction across its full length.", "section": "components" },
-      { "name": "The Visible-Focus Rule", "body": "Every interactive control shows a 2px focus-visible outline in Ink Primary, 2px offset, on keyboard focus — never suppressed. A prior version shipped outline-none on the filter input with no replacement, a real WCAG 2.4.7 gap; this is now a standing invariant, not a per-component choice.", "section": "components" },
-      { "name": "The Reduced-Motion Carve-Out", "body": "Spatial motion (shadow transitions, drag-settle transforms, the refresh spin) is skipped entirely under prefers-reduced-motion. Color and state transitions that carry meaning, like the staleness badge's tier color change, are kept — reduced motion removes movement, not all feedback.", "section": "components" }
+      { "name": "The Single-Amber Rule", "body": "Exactly one warm accent exists in this system. It marks 'this is interactive' (hover, focus) and 'this is a live reading' (a lit digit tube). It never marks trend direction or freshness — those stay in the separate status/lamp vocabulary, so a glance can't confuse 'the instrument is on' with 'the market moved.'", "section": "colors" },
+      { "name": "The Native-Scene Rule", "body": "The amber glow is a dark-mode-native phenomenon: --panel-amber-glow and --panel-amber-glow-core are literally transparent in :root. Light mode is a deliberately different, glow-off reading of the same instrument, never a dimmed copy of the dark-mode value.", "section": "colors" },
+      { "name": "The Muted-Line Rule", "body": "A trend sparkline's line is always the muted status hue; only its terminal point ever takes the direction-specific status color.", "section": "components" },
+      { "name": "The Instrument-Reading Rule", "body": "Anything that is a live numeric reading off the dashboard (the USD price, the BTC rate, the coin code) renders in the mono face with tabular-nums. Anything that is prose or a heading renders in Inter. A component never mixes the two within a single value.", "section": "typography" },
+      { "name": "The Ambient-Depth Rule", "body": "Chassis depth (the inset highlight/shadow pairing) is a resting-state material property of cards and the drag handle, not a hover-triggered elevation change. Hover communicates interactivity through the amber border instead.", "section": "elevation" },
+      { "name": "The Two-Layer Glow Rule", "body": "Wherever the amber accent glows (digit tubes, sparkline end-dot), it uses a tight near-opaque core plus a separate wide soft halo — never a single shadow layer. A single soft shadow was tried and reviewed as reading like 'bold colored text,' not a light source.", "section": "elevation" }
     ],
     "dos": [
-      "Do treat every color as a state signal, not decoration — before adding any new hue, ask what state it represents.",
-      "Do pair every status or trend color with a non-color cue (an icon, a visible label, or both) — color alone never carries meaning anywhere in this system.",
-      "Do keep the drag/trend/staleness signal colors flowing through a single shared source of truth (STATUS_COLOR in code) rather than redefining them per component, so they cannot drift apart.",
-      "Do apply signal colors via inline style/CSS variables, never a Tailwind class built from a runtime constant.",
-      "Do keep the page title and a card's headline price at the same type size and weight — neither should ever out-rank the other.",
-      "Do give every interactive control a visible :focus-visible outline.",
-      "Do judge each animation against prefers-reduced-motion individually: drop spatial movement, keep color/state transitions that carry meaning."
+      "Do spend the amber accent only on 'this is interactive' or 'this is a live reading' — hover borders, focus rings, and lit digit tubes.",
+      "Do keep trend/freshness meaning in the separate status/lamp vocabulary, never in amber.",
+      "Do apply the two-layer glow (core + halo) wherever the amber accent needs to read as a light source; never a single shadow layer.",
+      "Do gate spatial motion (digit cross-fade, drag-settle transform) under prefers-reduced-motion, and keep color-only transitions (the staleness lamp) ungated.",
+      "Do render a coin with no rate yet as an unlit, plain-color digit tube — never fabricate a 'reading.'",
+      "Do give every interactive control a visible amber :focus-visible outline."
     ],
     "donts": [
-      "Don't add a shadow to anything except a card, and only as hover feedback — not at rest, and not to any other component.",
-      "Don't introduce a brand/decorative accent color; every non-neutral pixel must be answering \"what state is this.\"",
-      "Don't color a sparkline's full line by trend direction — only its end marker carries the signal color.",
-      "Don't add a filled/primary-style button; every button in this system is an outline/ghost control.",
-      "Don't raise any text above the 20px/600 \"Title\" tier without a deliberate, system-wide decision — there is no hero-text precedent to extend from.",
-      "Don't ship outline-none (or equivalent) on any focusable element without an equally visible replacement indicator — this has already regressed once.",
-      "Don't give a single signal color one fixed hex for both themes; verify each theme's contrast independently before reusing a value across light and dark."
+      "Don't use amber for market-direction or freshness state — that would collide 'the instrument is on' with 'the market moved.'",
+      "Don't apply the digit-tube glow in light mode — the glow tokens are transparent there by design.",
+      "Don't add a shadow step to card hover — hover communicates via the amber border, not elevation; depth is already ambient at rest.",
+      "Don't color a sparkline's full line by trend direction — only its end-dot carries the signal color.",
+      "Don't add a filled/primary-style button; every button in this system is an outline/chassis control.",
+      "Don't treat the StalenessBadge's literal lamp colors as a second general-purpose status token source — they are scoped to that one component; new state-driven UI should route through STATUS_COLOR."
     ]
   }
 }

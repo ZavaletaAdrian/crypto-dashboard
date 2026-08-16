@@ -34,12 +34,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const visibleCoins = useFilteredVisibleCoins(orderedCoins, filterQuery);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/80">
+    <div className="min-h-screen bg-[var(--panel-page)]">
+      <header className="sticky top-0 z-10 border-b border-[var(--panel-border)] bg-[var(--panel-page)]/85 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Crypto Dashboard</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Live exchange rates via Coinbase</p>
+            <h1 className="text-xl font-semibold text-[var(--panel-text-primary)]">Crypto Dashboard</h1>
+            <p className="text-sm text-[var(--panel-text-secondary)]">Live exchange rates via Coinbase</p>
           </div>
           <div className="flex items-center gap-3">
             <StalenessBadge tier={tier} ageMs={ageMs} hasError={Boolean(lastError)} />
@@ -55,7 +55,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       <main className="mx-auto max-w-6xl p-6">
         {tier === "never" && !lastError && (
-          <p className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          <p className="mb-4 rounded-lg border border-[var(--panel-border)] bg-[var(--panel-chassis)] px-3 py-2 text-sm text-[var(--panel-text-secondary)]">
             Loading first rates…
           </p>
         )}

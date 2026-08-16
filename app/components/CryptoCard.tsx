@@ -2,6 +2,7 @@ import { memo, type ComponentProps } from "react";
 import { GripVertical, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Sparkline } from "./Sparkline";
 import { percentChange, trendDirection, type Trend } from "~/utils/priceHistory";
+import { useValueChangeFlash } from "~/hooks/useValueChangeFlash";
 import { COIN_ICON_URLS } from "~/data/coinIcons";
 import { STATUS_COLOR } from "~/data/statusPalette";
 import type { Coin, CoinRate } from "~/types/coin";
@@ -38,6 +39,9 @@ const TREND_ICONS = { up: TrendingUp, down: TrendingDown, flat: Minus };
 // with Sparkline's SVG colors via STATUS_COLOR — a Tailwind arbitrary
 // class built from an imported constant (e.g. `text-[${hex}]`) wouldn't be
 // picked up by Tailwind's static source scan and would silently not apply.
+// (The chassis tokens below are the opposite case — a literal, static
+// `var(--panel-x)` string Tailwind's scanner can see at build time — so
+// those are plain arbitrary-value classes, not inline style.)
 function trendColor(trend: Trend): string {
   if (trend === "up") return STATUS_COLOR.good;
   if (trend === "down") return STATUS_COLOR.critical;
@@ -49,26 +53,33 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
   const change = percentChange(priceHistory);
   const trend = trendDirection(change);
   const TrendIcon = TREND_ICONS[trend];
+  const usdDisplay = rate ? formatUsd(rate.usd) : "—";
+  const priceChanged = useValueChangeFlash(usdDisplay);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md motion-safe:transition-shadow dark:border-gray-800 dark:bg-gray-900">
+    <div className="ds-chassis-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-chassis)] p-4 hover:border-[var(--panel-amber)]/40 motion-safe:transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           {iconUrl ? (
             <img src={iconUrl} alt="" width={28} height={28} className="shrink-0 rounded-full" />
           ) : (
-            <div className="h-7 w-7 shrink-0 rounded-full bg-gray-100 dark:bg-gray-800" aria-hidden="true" />
+            <div className="h-7 w-7 shrink-0 rounded-full bg-[var(--panel-border)]" aria-hidden="true" />
           )}
           <div className="min-w-0">
-            <h2 className="truncate leading-tight font-semibold">{coin.name}</h2>
-            <div className="text-xs font-medium text-gray-500 uppercase dark:text-gray-400">{coin.code}</div>
+            <h2 className="truncate leading-tight font-semibold text-[var(--panel-text-primary)]">{coin.name}</h2>
+            <div className="font-mono text-xs font-medium tracking-wide text-[var(--panel-text-secondary)] uppercase">
+              {coin.code}
+            </div>
           </div>
         </div>
         {dragHandleProps && (
+          // Circular, not the rounded-lg squares every other icon control
+          // uses — reads as a countersunk panel fastener (a mount point you
+          // grab), not a generic icon button wearing the panel's colors.
           <button
             type="button"
             aria-label={`Reorder ${coin.name}`}
-            className="shrink-0 touch-none rounded p-2.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus-visible:outline-gray-100"
+            className="ds-panel-fastener shrink-0 touch-none rounded-full border border-[var(--panel-border)] p-2.5 text-[var(--panel-text-secondary)] hover:border-[var(--panel-amber)]/40 hover:text-[var(--panel-amber)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--panel-amber)] motion-safe:transition-colors"
             {...dragHandleProps}
           >
             <GripVertical className="h-4 w-4" aria-hidden="true" />
@@ -78,10 +89,19 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
 
       <div className="mt-4 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            {rate ? formatUsd(rate.usd) : "—"}
+          {/* The instrument's own readout: tabular mono digits. Lit (amber,
+              glowing in dark mode) only when a real reading exists — a coin
+              with no rate yet is an unlit tube, not a "reading" that was
+              never taken. data-changed briefly true on a real price change
+              (useValueChangeFlash) triggers the cross-fade in app.css — the
+              signature "digit tube" interaction, not a per-poll flourish. */}
+          <div
+            className={`ds-digit-readout text-xl font-semibold ${rate ? "ds-digit-readout--lit" : "text-[var(--panel-text-secondary)]"}`}
+            data-changed={priceChanged}
+          >
+            {usdDisplay}
           </div>
-          <div className="mt-0.5 font-mono text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-0.5 font-mono text-xs text-[var(--panel-text-secondary)]">
             {rate ? formatBtc(rate.btc) : "—"}
           </div>
         </div>
@@ -103,14 +123,8 @@ function CryptoCardImpl({ coin, rate, priceHistory, dragHandleProps }: CryptoCar
                     "this session") because priceHistory is a bounded rolling window —
                     older points drop off, so this isn't a full-session change once the
                     window fills, and it must not be misread as the 24h change most
-                    crypto UIs show.
-                    On the documented `label` (12px) type step, not an ad hoc 10px —
-                    the previous 10px/gray-400(light)/gray-500(dark) pairing was both
-                    off-ramp and had the light/dark shades backwards from every other
-                    secondary text in this file, failing 4.5:1 in both themes (2.60:1
-                    light, 3.67:1 dark). This reuses the same gray-500/gray-400 pair
-                    the symbol and BTC sub-price already use, verified >=4.5:1 both ways. */}
-                <span className="text-xs text-gray-500 dark:text-gray-400">recent</span>
+                    crypto UIs show. */}
+                <span className="text-xs text-[var(--panel-text-secondary)]">recent</span>
               </div>
             )}
           </div>
