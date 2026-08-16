@@ -72,7 +72,7 @@ export function Sparkline({ values, trend, width = 64, height = 24 }: SparklineP
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} style={{ fill: accent, filter: `url(#${glowId})` }} />
+      <circle cx={last.x} cy={last.y} r={MARKER_RADIUS} fill={accent} filter={`url(#${glowId})`} />
     </svg>
   );
 }
