@@ -60,6 +60,18 @@ app/
 
 One Coinbase call refreshes USD *and* BTC pricing for the entire coin list — confirmed against a live fetch (`rates.BTC / rates.BTC = 1`, `rates.BTC / rates.ETH ≈ 0.03`, a plausible ETH/BTC ratio).
 
+## Development workflow and tooling
+
+This project was built end-to-end with [Claude Code](https://claude.com/claude-code) (Anthropic's agentic CLI) as the primary development tool, working from this repo's own `CLAUDE.md` and `AGENTS.md` as durable project context across sessions rather than re-deriving conventions each time.
+
+- **Session orchestration — Chirp.** The build (scaffolding, the server data layer, core UI, drag-and-drop, the visual redesign, PR review fixes) was split across multiple Claude Code agent sessions coordinated with **Chirp**, Spotify's tool for spawning and tracking agent sessions against isolated git worktrees/branches, so unrelated units of work could proceed independently without one session's in-progress edits colliding with another's.
+- **Design system work — the `impeccable` Claude Code skill.** The visual system documented in `DESIGN.md` (and the product context in `PRODUCT.md`) was produced through `impeccable`'s commands rather than freehand styling: `init` to capture product truth, `audit` for accessibility/contrast/responsive passes, `polish`/`animate` for finishing and motion, and its new-work redesign flow for the full "Nixie-Tube Instrument Panel" visual identity — direction selection, a code-led build against a written direction contract, an automated `finish-reviewer` subagent pass that checks the shipped build against that contract and flags concrete fixes, and a `documenter` subagent that regenerates `DESIGN.md` from the actual built code (not from intent) once fixes land.
+- **Code review — GitHub Copilot.** Every feature branch's PR requests a review from `copilot-pull-request-reviewer[bot]` before it's eligible to merge. Comments are triaged individually — fixed when valid, or replied to with concrete evidence when not (e.g. one review round flagged several Tailwind opacity-modifier classes as producing invalid CSS; checking the actual compiled `build/client/assets/*.css` showed Tailwind v4 + lightningcss resolves them correctly via a `color-mix()` `@supports` fallback, so those were answered rather than "fixed").
+- **CI — GitHub Actions** (`.github/workflows/ci.yml`). Every push and pull request against `develop` or `main` runs `npm run typecheck`, `npm test`, and `npm run build` on Node 22.
+- **Deployment — Vercel.** `main` deploys to production (`https://crypto-dashboard-six-olive.vercel.app`); every pull request gets its own preview deployment. No `vercel.json` — Vercel's native React Router v7 (Vite) framework detection builds the SSR output (`build/server` + `build/client`) directly from `npm run build`.
+
+See `AGENTS.md` for the module boundaries and coding conventions this tooling was expected to follow, and the git branching model (`main` ← `develop` ← `feature/*`, one PR per feature branch).
+
 ## Tension Decisions
 
 The assignment names five tensions with no single correct resolution. **T1, T3, T4, and T5 are fully implemented in code** (four of the five, exceeding the "at least two" bar); **T2 is reasoned through below but deliberately descoped** — the reasoning is why.
