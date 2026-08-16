@@ -26,7 +26,7 @@ Grading also explicitly weighs: clean/modular/idiomatic React + Remix code, stri
 `PRODUCT.md` and `DESIGN.md` (plus its `.impeccable/design.json` sidecar) are owned by the `impeccable` skill, not hand-edited ad hoc:
 
 - Product truth (audience, purpose, constraints) lives in `PRODUCT.md`.
-- The visual system ("The Instrument Panel" — grayscale, flat-by-default, signal color only ever means state) lives in `DESIGN.md`.
+- The visual system ("Nixie-Tube Instrument Panel" — a chassis/instrument identity with exactly one committed amber accent, dark-mode-native glow, and a separate status/lamp vocabulary for trend and freshness) lives in `DESIGN.md`.
 - Any new surface, component, or visual refinement should run through the relevant `/impeccable` command (`polish`, `harden`, `colorize`, `layout`, etc.) so the design system stays a single source of truth instead of drifting screen-by-screen.
 - `DESIGN.md` governs *how things look*. It never overrides the locked functional requirements above — a redesign changes color/type/spacing/motion, not what data is shown, how filtering works, or what the five tensions resolve to.
 
